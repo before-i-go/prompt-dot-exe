@@ -1,0 +1,140 @@
+This is a placeholder file
+
+whatever is not classified will stay here
+
+
+-----------------------------------------
+
+Hypothesis:
+It's easier to change your thinking or emotions by taking actions than changing your actions by changing your emotions or thinking
+
+actions ➡️ emotions >
+emotions ➡️ actions
+
+action is supreme
+emotions will follow
+
+-------------------------------------------
+Below are five GitHub repositories that working staff–level backend engineers frequently study, reference, or contribute to.  
+Each project is:
+
+• Actively maintained and used in production by thousands of companies.  
+• Large enough to demonstrate real-world complexity (auth, RBAC, migrations, CI/CD, observability, etc.).  
+• Laid out cleanly, with good automated tests and API documentation, so you can clone, run, trace, refactor and learn.
+
+For every repo I list:  
+ • Core stack & scale – what you will be reading.  
+ • Why it is a standout API code base.  
+ • Concrete “study quests” – tasks that will force you to touch the most instructive parts of the code.  
+ • How hard it is to spin up locally.
+
+───────────────────────────────
+1. Full-Stack FastAPI + PostgreSQL  
+   Repo: github.com/tiangolo/full-stack-fastapi-postgresql  
+   Language: Python 3.12, FastAPI, SQLModel/SQLAlchemy, Celery, Traefik, Docker Compose
+
+Why it’s elite  
+• Text-book hexagonal structure (api → services → db) with Pydantic schemas that generate an OpenAPI 3.1 spec automatically.  
+• 95 % type-hint coverage, strict mypy + ruff + pytest in CI.  
+• Shows production extras: JWT auth, background tasks, Alembic migrations, async SQLAlchemy.  
+• Runs entirely in containers; dev = prod parity.
+
+Study quests  
+A. Fork and add soft-delete to the “users” table (field deleted_at). Propagate to schemas, CRUD layer, tests, docs.  
+B. Integrate Prometheus metrics via Starlette middleware and expose on /metrics.  
+C. Replace RabbitMQ → Redis streams in Celery and benchmark latency (locustfile provided).
+
+Spin-up difficulty: ⭐ (docker-compose up, open http://localhost/docs)
+
+───────────────────────────────
+2. Gitea – Git-Hub-like self-hosted service  
+   Repo: github.com/go-gitea/gitea  
+   Language: Go 1.22, chi router, xorm, SQLite/MySQL/Postgres
+
+Why it’s elite  
+• Mature REST + (new) GraphQL APIs used by millions of repos.  
+• Idiomatic Go layering: models, services, modules, routers; heavy use of interfaces and dependency injection.  
+• Concurrency patterns you must master: worker pools, context cancellation, streaming HTTP, websockets for live updates.  
+• Comprehensive integration test harness—spins a full Git server in CI.
+
+Study quests  
+A. Trace the POST /repos/:owner/:repo/pulls handler: draw a sequence diagram from router → validation → git plumbing layers.  
+B. Add ETag support to a low-volume endpoint and verify with integration tests.  
+C. Containerize with distroless image < 30 MB and wire into GitHub actions matrix build.
+
+Spin-up difficulty: ⭐⭐ (make build && ./gitea web; or docker image)
+
+───────────────────────────────
+3. Medusa – Headless e-commerce engine  
+   Repo: github.com/medusajs/medusa  
+   Language: Node 20, TypeScript, Express, TypeORM, OpenTelemetry
+
+Why it’s elite  
+• Domain-driven folder layout (cart, order, fulfillment, pricing) – great to see service boundaries.  
+• Transactionally consistent saga-style workflows across Stripe, PayPal, manual fulfillment.  
+• Uses class-validator + decorators to achieve compile-time safe request/response types.  
+• Built-in event bus (Redis) and job queue (BullMQ) – learn eventual consistency.
+
+Study quests  
+A. Write an integration test that spins up Postgres + Redis containers and completes a full “add-to-cart → checkout” flow.  
+B. Implement rate limiting (e.g., rate-limiter-flexible) on all /store/* routes and expose a configurable burst window via env.  
+C. Instrument OpenTelemetry tracing to pipe to Jaeger; confirm spans across Express ↔︎ Redis ↔︎ Postgres.
+
+Spin-up difficulty: ⭐⭐ (yarn dev --seed; admin dashboard optional)
+
+───────────────────────────────
+4. Keycloak – Identity & Access Management  
+   Repo: github.com/keycloak/keycloak  
+   Language: Java 21, Quarkus, Hibernate, RESTEasy Reactive
+
+Why it’s elite  
+• Enterprise-grade OAuth2/OIDC, SAML, UMA – perfect playground to learn spec-level API correctness.  
+• Reactive non-blocking REST layer that still passes TCK compatibility tests.  
+• Sophisticated SPI plugin architecture: every feature (user-storage, auth-flows) is an injectable module.  
+• Full GraalVM native build pipeline.
+
+Study quests  
+A. Build a custom Authenticator SPI that enforces Time-based-OTP at first login, unit test with Quarkus JUnit5.  
+B. Trace the token issuance flow starting at TokenEndpoint → ClientSessionContext to understand caching layers.  
+C. Build and start a native image in Docker and run k6 load test against /realms/demo/protocol/openid-connect/token.
+
+Spin-up difficulty: ⭐⭐⭐ (mvn clean install –Pdistribution; or docker-compose)
+
+───────────────────────────────
+5. Supabase GoTrue – Auth microservice used by Supabase  
+   Repo: github.com/supabase/gotrue  
+   Language: Go 1.22, Echo, PostgreSQL (pgx), OpenAPI v3 spec
+
+Why it’s elite  
+• Laser-focused single-purpose REST API (signup, magic-link, OTP, SSO) – codebase is small enough to grok in a week yet production-hardened.  
+• Precise RFC compliance: bcrypt, JWT, PKCE, JWKS.  
+• Table-driven tests with live Postgres container launched by test harness → study how to do reliable integration tests in Go.  
+• Exemplary GitHub Actions workflow: staticcheck, govulncheck, sqlc generation, Testcontainers.
+
+Study quests  
+A. Add an endpoint to allow WebAuthn registration; mirror style of existing magic-link flow.  
+B. Migrate sqlc to the newest Postgres 16 features (UUID v7) and regenerate code.  
+C. Implement structured logging (zap) with request-scoped correlation IDs and push to OpenTelemetry.
+
+Spin-up difficulty: ⭐ (make run; env vars guided in README)
+
+───────────────────────────────
+How to use these repos methodically
+
+1. Clone → boot project locally exactly as the maintainers do (no shortcuts).  
+2. Read the CONTRIBUTING.md and CI configs first; they reveal quality bars.  
+3. Pick one “study quest” at a time, open a draft PR on your fork, run the full test suite, add new tests until green.  
+4. Trace requests with a debugger + network profiler; export a sequence diagram.  
+5. Write a short blog post / Zettelkasten note per quest—teaching cements mastery.  
+6. When you find a bug or doc gap in upstream, open an actual PR; real code review from maintainers is priceless.
+
+Complete even half of the quests above and you will have touched state-of-the-art practices in:
+
+• Clean architecture layering & DDD  
+• OpenAPI / async API design & schema-first development  
+• Observability (structured logging, tracing, metrics)  
+• CI/CD, containerization, supply-chain security  
+• High-confidence testing (unit, integration, e2e, load)  
+• Performance tuning & profiling
+
+That portfolio will put you firmly in the top 5 % of backend API engineers. Happy hacking![{'index': 1}]
