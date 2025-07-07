@@ -3,6 +3,9 @@ This is a placeholder file
 whatever is not classified will stay here
 
 
+
+
+
 -----------------------------------------
 
 Hypothesis:
@@ -14,6 +17,24 @@ emotions ➡️ actions
 action is supreme
 emotions will follow
 
+
+===============================================
+https://build.nvidia.com/nvidia/llama-3_1-nemotron-70b-instruct
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===============================================
 -------------------------------------------
 Below are five GitHub repositories that working staff–level backend engineers frequently study, reference, or contribute to.  
 Each project is:
