@@ -1,0 +1,8 @@
+/home/amuldotexe/Desktop/GitHub202410/interview-irodov/ts-compressor/target/release/deps/libswc_ecma_transforms_macros-9ffdec45bd1619fc.so: /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/lib.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/common.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/fast.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/parallel.rs
+
+/home/amuldotexe/Desktop/GitHub202410/interview-irodov/ts-compressor/target/release/deps/swc_ecma_transforms_macros-9ffdec45bd1619fc.d: /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/lib.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/common.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/fast.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/parallel.rs
+
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/lib.rs:
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/common.rs:
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/fast.rs:
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/swc_ecma_transforms_macros-0.5.5/src/parallel.rs:

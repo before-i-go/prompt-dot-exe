@@ -1,0 +1,10 @@
+/home/amuldotexe/Desktop/GitHub202410/interview-irodov/ts-compressor/target/release/deps/libstacker-b4d72d395d846fb6.rmeta: /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/lib.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/backends/mod.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/backends/unix.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/mmap_stack_restore_guard.rs
+
+/home/amuldotexe/Desktop/GitHub202410/interview-irodov/ts-compressor/target/release/deps/libstacker-b4d72d395d846fb6.rlib: /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/lib.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/backends/mod.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/backends/unix.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/mmap_stack_restore_guard.rs
+
+/home/amuldotexe/Desktop/GitHub202410/interview-irodov/ts-compressor/target/release/deps/stacker-b4d72d395d846fb6.d: /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/lib.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/backends/mod.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/backends/unix.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/mmap_stack_restore_guard.rs
+
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/lib.rs:
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/backends/mod.rs:
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/backends/unix.rs:
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.21/src/mmap_stack_restore_guard.rs:

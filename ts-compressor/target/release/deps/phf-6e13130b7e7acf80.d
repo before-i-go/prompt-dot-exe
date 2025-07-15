@@ -1,0 +1,11 @@
+/home/amuldotexe/Desktop/GitHub202410/interview-irodov/ts-compressor/target/release/deps/libphf-6e13130b7e7acf80.rmeta: /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/lib.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/map.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/ordered_map.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/ordered_set.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/set.rs
+
+/home/amuldotexe/Desktop/GitHub202410/interview-irodov/ts-compressor/target/release/deps/libphf-6e13130b7e7acf80.rlib: /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/lib.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/map.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/ordered_map.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/ordered_set.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/set.rs
+
+/home/amuldotexe/Desktop/GitHub202410/interview-irodov/ts-compressor/target/release/deps/phf-6e13130b7e7acf80.d: /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/lib.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/map.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/ordered_map.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/ordered_set.rs /home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/set.rs
+
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/lib.rs:
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/map.rs:
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/ordered_map.rs:
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/ordered_set.rs:
+/home/amuldotexe/.cargo/registry/src/index.crates.io-6f17d22bba15001f/phf-0.11.3/src/set.rs:
