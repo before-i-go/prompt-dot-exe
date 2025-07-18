@@ -32,10 +32,11 @@ cargo build --release
 # TypeScript compilation and minification
 ./target/release/ts-compressor compress input_dir output_dir
 
-# Archive entire codebase with structure preservation
+# Archive entire codebase with smart filtering (LLM optimization enabled by default)
 ./target/release/ts-compressor archive my_project
 
-
+# Disable LLM optimization and filter stats if needed
+./target/release/ts-compressor archive my_project --no-llm-optimize --no-filter-stats
 ```
 
 ## 📋 Commands
@@ -66,8 +67,8 @@ ts-compressor archive <target_folder> [--output-dir <dir>] [--llm-optimize] [--s
 - Timestamped output files
 - Binary file detection and handling
 - Tree-style directory visualization
-- **LLM-optimized filtering** with `--llm-optimize` (270+ exclusion patterns)
-- **Filtering statistics** with `--show-filter-stats` for transparency
+- **LLM-optimized filtering** enabled by default (270+ exclusion patterns) - use `--no-llm-optimize` to disable
+- **Filtering statistics** shown by default for transparency - use `--no-filter-stats` to hide
 - **Custom ignore patterns** and **extension filtering** for granular control
 
 
@@ -163,10 +164,11 @@ A production-grade Rust application that demonstrates advanced systems programmi
 ### Example 3: LLM-Optimized Data Preparation 🤖
 
 ```bash
-# Create clean archive for LLM training data
-./ts-compressor archive my-project --llm-optimize --show-filter-stats
+# Create clean archive for LLM training data (LLM optimization enabled by default)
+./ts-compressor archive my-project
 
 # Output: Clean archive excluding build artifacts, dependencies, binaries
+# Filter statistics are shown by default
 ```
 
 ```
@@ -437,18 +439,18 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ### Conservative Settings (Recommended)
 ```bash
-# Safe defaults for most projects
-./ts-compressor archive my-project --llm-optimize
+# Safe defaults for most projects (LLM optimization enabled by default)
+./ts-compressor archive my-project
 ```
 
 ### High-Performance Settings
 ```bash
-# Maximum performance for large projects
+# Specify output directory for large projects
 ./ts-compressor archive large-project --output-dir ./archives
 ```
 
 ### Memory-Constrained Settings
 ```bash
-# Minimal memory usage for resource-limited environments
-./ts-compressor archive project --llm-optimize --show-filter-stats
+# Disable optimizations for raw archiving
+./ts-compressor archive project --no-llm-optimize --no-filter-stats
 ```

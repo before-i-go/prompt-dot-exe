@@ -44,8 +44,11 @@ The `ts-compressor` tool is a **production-ready Rust application** that demonst
 cd ts-compressor
 cargo build --release
 
-# LLM-optimized archiving (excludes build artifacts, dependencies, binaries)
-./target/release/ts-compressor archive my-project --llm-optimize --show-filter-stats
+# Smart archiving with LLM optimization and filter stats (enabled by default)
+./target/release/ts-compressor archive my-project
+
+# Disable LLM optimization and filter stats if needed
+./target/release/ts-compressor archive my-project --no-llm-optimize --no-filter-stats
 
 
 ```

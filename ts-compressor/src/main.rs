@@ -63,18 +63,18 @@ enum Commands {
         /// Output directory for archive file (optional, defaults to parent of target)
         #[arg(short, long)]
         output_dir: Option<PathBuf>,
-        /// Enable LLM-optimized filtering (excludes build artifacts, dependencies, binaries)
-        #[arg(long)]
-        llm_optimize: bool,
+        /// Disable LLM-optimized filtering (enabled by default)
+        #[arg(long = "no-llm-optimize")]
+        no_llm_optimize: bool,
         /// Custom ignore patterns (glob patterns, can be used multiple times)
         #[arg(long)]
         ignore_pattern: Vec<String>,
         /// Include only specific file extensions (e.g., rs,js,py)
         #[arg(long)]
         include_extensions: Option<String>,
-        /// Show filtering statistics
-        #[arg(long)]
-        show_filter_stats: bool,
+        /// Hide filtering statistics (shown by default)
+        #[arg(long = "no-filter-stats")]
+        no_filter_stats: bool,
         /// Log level (trace, debug, info, warn, error)
         #[arg(long, default_value = "info")]
         log_level: String,
@@ -106,20 +106,20 @@ fn main() -> Result<()> {
         Commands::Archive {
             target_folder,
             output_dir,
-            llm_optimize,
+            no_llm_optimize,
             ignore_pattern,
             include_extensions,
-            show_filter_stats,
+            no_filter_stats,
             ..
         } => {
             info!("Starting code archiving with intelligent filtering");
             archive_code_folder(
                 target_folder,
                 output_dir,
-                llm_optimize,
+                !no_llm_optimize,
                 ignore_pattern,
                 include_extensions,
-                show_filter_stats,
+                !no_filter_stats,
             )
         }
     };
