@@ -604,4 +604,130 @@ IDIOMATIC RUST PATTERNS
 41.9. Extension trait design
 41.10. Conditional compilation
 
-Each of these patterns represents advanced techniques commonly used in building production-grade async Rust libraries like Tokio and Axum. They focus on performance, safety, and maintainability while providing powerful abstractions for users.
+42. COMPRESSION AND DATA PROCESSING PATTERNS
+------------------------------------------
+42.1. Frequency Analysis Patterns
+     - Use HashMap<String, usize> for frequency counting
+     - Implement streaming frequency analysis for large datasets
+     - Use BTreeMap for ordered frequency access
+     - Apply sliding window techniques for pattern detection
+
+42.2. Dictionary Compression Patterns
+     - Build replacement dictionaries with shortest-first allocation
+     - Use Vec<(String, String)> for ordered replacement pairs
+     - Implement collision-free token generation (hex sequences)
+     - Cache frequently accessed dictionary entries
+
+42.3. Streaming Data Processing
+     - Process files in chunks to minimize memory usage
+     - Use BufReader/BufWriter for efficient I/O
+     - Implement backpressure for large file processing
+     - Apply lazy evaluation for expensive computations
+
+42.4. Pattern Recognition Algorithms
+     - Use rolling hash for content-defined chunking
+     - Implement suffix arrays for pattern matching
+     - Apply Rabin-Karp algorithm for string searching
+     - Use bloom filters for duplicate detection
+
+42.5. Memory-Efficient Processing
+     - Prefer &str over String for temporary processing
+     - Use Cow<str> for conditional ownership
+     - Implement arena allocation for temporary data
+     - Apply zero-copy techniques where possible
+
+42.6. Compression Pipeline Design
+     - Chain compression stages using iterator adapters
+     - Implement reversible transformations with metadata
+     - Use type-state pattern for pipeline validation
+     - Apply builder pattern for configurable pipelines
+
+42.7. File System Traversal Patterns
+     - Use WalkDir for recursive directory processing
+     - Implement git-aware file filtering
+     - Apply parallel processing with rayon for large trees
+     - Handle symlinks and special files safely
+
+42.8. Binary Format Design
+     - Use little-endian byte order for cross-platform compatibility
+     - Implement length-prefixed strings for variable data
+     - Apply magic numbers for format identification
+     - Use checksums for integrity validation
+
+42.9. Error Recovery Patterns
+     - Continue processing on individual file failures
+     - Implement partial success with detailed error reporting
+     - Use Result<Vec<T>, Vec<Error>> for batch operations
+     - Apply graceful degradation for unsupported formats
+
+42.10. Performance Optimization
+     - Profile hot paths with criterion benchmarks
+     - Use SIMD instructions for bulk operations
+     - Implement custom allocators for specific workloads
+     - Apply compile-time optimization with const generics
+
+43. TEXT PROCESSING AND TOKENIZATION
+----------------------------------
+43.1. Universal Tokenization Patterns
+     - Use regex-based token recognition with priority ordering
+     - Implement fallback tokenization for unknown patterns
+     - Apply state machines for complex token parsing
+     - Use Cow<str> for zero-copy token extraction
+
+43.2. String Interning and Deduplication
+     - Implement string interning with HashMap<String, u32>
+     - Use Arc<str> for shared string ownership
+     - Apply content-addressable storage for deduplication
+     - Implement weak references for cache management
+
+43.3. Lexical Analysis Patterns
+     - Build finite state automata for token recognition
+     - Use lookahead for context-sensitive parsing
+     - Implement token stream abstraction
+     - Apply recursive descent for nested structures
+
+43.4. Character Encoding Handling
+     - Use UTF-8 validation for text processing
+     - Implement encoding detection for mixed content
+     - Apply lossy conversion with error reporting
+     - Handle byte order marks (BOM) correctly
+
+43.5. Pattern Matching Optimization
+     - Use Aho-Corasick for multiple pattern matching
+     - Implement Boyer-Moore for single pattern search
+     - Apply suffix trees for complex pattern queries
+     - Use bit vectors for character class matching
+
+44. ARCHIVE FORMAT DESIGN PATTERNS
+--------------------------------
+44.1. Self-Describing Format Design
+     - Include format version in header
+     - Use magic numbers for format identification
+     - Implement extensible metadata sections
+     - Apply forward/backward compatibility strategies
+
+44.2. Compression Metadata Management
+     - Store compression parameters in header
+     - Include original file checksums
+     - Implement compression statistics tracking
+     - Use structured metadata (JSON/TOML embedded)
+
+44.3. Reconstruction Information
+     - Store complete directory structure manifest
+     - Include file permissions and timestamps
+     - Implement symbolic link preservation
+     - Apply git metadata preservation when available
+
+44.4. Integrity and Verification
+     - Use CRC32/SHA256 for content verification
+     - Implement incremental checksum calculation
+     - Apply error correction codes for critical metadata
+     - Use digital signatures for authenticity
+
+44.5. Streaming Archive Processing
+     - Design for single-pass reading/writing
+     - Implement seek-free reconstruction
+     - Apply progressive decompression
+     - Use memory-mapped files for large archives
+
+Each of these patterns represents techniques specifically relevant to compression algorithms, data processing, and archive management. They focus on memory efficiency, performance, and correctness while maintaining idiomatic Rust practices.

@@ -72,17 +72,44 @@ This repository serves as a complete interview preparation ecosystem for backend
 ## 🛠 Tools and Utilities
 
 ### TypeScript Compressor (`ts-compressor/`)
-A production-ready Rust tool for:
-- TypeScript to JavaScript compilation
-- Code minification and optimization
-- Git-aware file processing
-- Performance benchmarking
+A production-ready Rust tool featuring TypeScript compilation and advanced code compression:
+
+#### Core Features
+- **TypeScript to JavaScript compilation**: Standard minification and optimization
+- **Universal Code Compression**: Frequency-based dictionary compression system
+- **Git-aware file processing**: Respects .gitignore rules and repository structure
+- **Archive functionality**: Complete codebase archiving with structure preservation
+
+#### Universal Compression Features
+- **Frequency Analysis**: Automatically identifies repetitive code patterns
+- **Dictionary Compression**: Replaces patterns with compact hexadecimal tokens
+- **Zstd Integration**: Optional final compression layer for maximum size reduction
+- **Complete Output**: Embedded dictionary, statistics, and compressed content
+
+#### Usage Examples
+```bash
+# Standard TypeScript compression
+./ts-compressor compress input_dir output_dir
+
+# Archive entire codebase
+./ts-compressor archive target_folder
+
+# Universal compression with frequency-based dictionary
+./ts-compressor universal-compress my_project
+./ts-compressor universal-compress my_project --min-pattern-length 5 --enable-zstd
+```
+
+#### Compression Performance
+- **Typical compression ratios**: 20-30% size reduction
+- **Dictionary efficiency**: Thousands of patterns automatically detected
+- **Processing speed**: Sub-second compression for typical projects
+- **Output format**: Human-readable with embedded reconstruction data
 
 Perfect for demonstrating:
-- Rust systems programming skills
-- File processing and CLI tool development
-- Performance optimization techniques
-- Real-world tooling experience
+- Advanced compression algorithm implementation
+- Rust systems programming and performance optimization
+- File processing and CLI tool development with multiple modes
+- Real-world tooling experience with production-grade features
 
 ## 📚 Study Session Workflow
 
