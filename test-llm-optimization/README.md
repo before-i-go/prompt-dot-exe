@@ -1,1 +1,3 @@
-# Test Project\n\nThis is a test project.
+# Test Project
+
+This is a test project.
