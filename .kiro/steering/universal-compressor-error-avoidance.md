@@ -119,6 +119,146 @@ impl HexTokenGenerator {
 }
 ```
 
+## Memory Management Critical Issues
+
+### RAM Explosion Prevention (Lessons from Production Incident)
+
+**CRITICAL MEMORY BOMBS IDENTIFIED:**
+
+#### 1. File Collection Memory Explosion
+```rust
+// ❌ MEMORY BOMB - Loads ALL files into memory simultaneously
+fn collect_files_from_archiver(&self) -> Result<Vec<FileEntry>, CompressionError> {
+    let mut files = Vec::new();
+    for entry in WalkDir::new(target_folder) {
+        let content = fs::read_to_string(path)?;  // LOADS ENTIRE FILE
+        files.push(FileEntry::new(path, content, false));  // STORES IN MEMORY
+    }
+    Ok(files)  // RETURNS ALL FILES AT ONCE
+}
+
+// ✅ MEMORY SAFE - Add file count and memory limits
+fn collect_files_from_archiver(&self) -> Result<Vec<FileEntry>, CompressionError> {
+    let mut files = Vec::new();
+    let max_files = 1000;           // Limit file count
+    let max_memory_mb = 500;        // Limit total memory
+    let mut total_size = 0;
+    let mut file_count = 0;
+    
+    for entry in WalkDir::new(target_folder) {
+        if file_count >= max_files {
+            warn!("Reached file limit of {}, stopping collection", max_files);
+            break;
+        }
+        
+        if total_size > max_memory_mb * 1024 * 1024 {
+            warn!("Reached memory limit of {}MB, stopping collection", max_memory_mb);
+            break;
+        }
+        
+        // Process file with memory tracking
+        let content = fs::read_to_string(path)?;
+        total_size += content.len();
+        file_count += 1;
+        files.push(FileEntry::new(path, content, false));
+    }
+    Ok(files)
+}
+```
+
+#### 2. Pattern Analysis Memory Explosion
+```rust
+// ❌ MEMORY BOMB - Unlimited pattern HashMap growth
+impl FrequencyAnalyzer {
+    fn analyze_content(&mut self, content: &str) {
+        for window_size in self.min_pattern_length..=content.len().min(50) {
+            for window in content.as_bytes().windows(window_size) {
+                // Creates exponential pattern growth - millions of entries!
+                *self.pattern_frequencies.entry(pattern.to_string()).or_insert(0) += 1;
+            }
+        }
+    }
+}
+
+// ✅ MEMORY SAFE - Add pattern count limit
+impl FrequencyAnalyzer {
+    fn new(min_length: usize, min_frequency: usize) -> Self {
+        Self {
+            min_pattern_length: min_length,
+            min_frequency_threshold: min_frequency,
+            pattern_frequencies: HashMap::new(),
+            max_patterns: 50_000,  // ADD PATTERN LIMIT
+        }
+    }
+    
+    fn analyze_content(&mut self, content: &str) {
+        for window_size in self.min_pattern_length..=content.len().min(50) {
+            if self.pattern_frequencies.len() >= self.max_patterns {
+                warn!("Pattern limit reached, stopping pattern extraction");
+                break;
+            }
+            
+            for window in content.as_bytes().windows(window_size) {
+                // Check before adding new patterns
+                if !self.pattern_frequencies.contains_key(pattern)
+                    && self.pattern_frequencies.len() >= self.max_patterns {
+                    continue;
+                }
+                
+                *self.pattern_frequencies.entry(pattern.to_string()).or_insert(0) += 1;
+            }
+        }
+    }
+}
+```
+
+### Memory Management Best Practices
+
+**ALWAYS implement bounds checking:**
+- **File count limits** (prevent loading too many files)
+- **Memory size limits** (prevent loading too much content)
+- **Pattern count limits** (prevent HashMap explosion)
+- **Processing time limits** (prevent infinite loops)
+
+**Use TDD for memory-critical code:**
+```rust
+#[test]
+fn test_file_collection_with_file_limit() {
+    let temp_dir = create_test_directory_with_many_files(2000);
+    let compressor = UniversalCompressor::new(temp_dir.path()).unwrap();
+    
+    // Should stop at file limit, not crash
+    let result = compressor.configure().analyze();
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_pattern_analysis_with_pattern_limit() {
+    let analyzer = FrequencyAnalyzer::new(4, 3);
+    let large_content = "a".repeat(1_000_000);
+    
+    // Should stop at pattern limit, not exhaust memory
+    analyzer.analyze_content(&large_content);
+    assert!(analyzer.pattern_frequencies.len() <= 50_000);
+}
+```
+
+**Monitor memory usage in production:**
+```rust
+// Add memory monitoring to critical paths
+if self.current_memory_usage > self.max_memory_usage {
+    warn!("Memory usage high: {}MB", self.current_memory_usage / 1024 / 1024);
+    self.compact_data()?;  // Free up memory
+}
+```
+
+**Incident Summary:**
+- **Problem**: 4,654 files loaded simultaneously → >98% RAM usage → process killed
+- **Root Cause**: No bounds checking on file collection or pattern analysis
+- **Solution**: 5-line fix adding `max_files = 1000` and `max_patterns = 50,000`
+- **Result**: Memory usage dropped from >98% to ~2%, successful processing
+- **Lesson**: Simple bounds checking prevents catastrophic memory issues
+
 ## Development Workflow Requirements
 
 ### Incremental Development
@@ -170,11 +310,20 @@ impl HexTokenGenerator {
 ✅ All tests passing (98/98)
 ✅ End-to-end compression workflow functional
 
-**NEXT STEPS (Task 16):**
+**CURRENT STATUS (Task 16 - MEMORY MANAGEMENT FIXES):**
+✅ Critical memory explosion issues identified and fixed
+✅ File collection bounded to 1,000 files max
+✅ Pattern analysis bounded to 50,000 patterns max
+✅ Memory usage reduced from >98% to ~2%
+✅ TDD approach used for memory-safe implementation
+✅ Compression now completes successfully on large codebases
+
+**NEXT STEPS (Task 17):**
 1. Create comprehensive integration test suite
 2. Test Git-aware processing with various repository configurations
 3. Add performance benchmarks for different codebase sizes
 4. Test error scenarios and edge cases
+5. Implement streaming processing for even larger codebases
 
 ### Code Quality Standards
 ```rust

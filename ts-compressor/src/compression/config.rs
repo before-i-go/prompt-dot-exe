@@ -1,5 +1,5 @@
 //! Configuration types for compression operations
-//! 
+//!
 //! Provides type-safe configuration with validation and builder patterns
 //! for flexible compression parameter management.
 
@@ -25,7 +25,7 @@ impl MinPatternLength {
         }
         Ok(Self(length))
     }
-    
+
     /// Get the inner value
     pub fn get(&self) -> usize {
         self.0
@@ -63,7 +63,7 @@ impl FrequencyThreshold {
         }
         Ok(Self(threshold))
     }
-    
+
     /// Get the inner value
     pub fn get(&self) -> usize {
         self.0
@@ -96,7 +96,7 @@ impl ZstdLevel {
         }
         Ok(Self(level))
     }
-    
+
     /// Get the inner value
     pub fn get(&self) -> i32 {
         self.0
@@ -134,7 +134,7 @@ impl ThreadCount {
         }
         Ok(Self(count))
     }
-    
+
     /// Get the inner value
     pub fn get(&self) -> usize {
         self.0
@@ -172,7 +172,7 @@ impl ChunkSize {
         }
         Ok(Self(size))
     }
-    
+
     /// Get the inner value
     pub fn get(&self) -> usize {
         self.0
@@ -210,7 +210,7 @@ impl ChannelBufferSize {
         }
         Ok(Self(size))
     }
-    
+
     /// Get the inner value
     pub fn get(&self) -> usize {
         self.0
@@ -248,7 +248,7 @@ impl MemoryMapThreshold {
         }
         Ok(Self(threshold))
     }
-    
+
     /// Get the inner value
     pub fn get(&self) -> usize {
         self.0
@@ -281,7 +281,7 @@ impl ParallelConfig {
     pub fn builder() -> ParallelConfigBuilder {
         ParallelConfigBuilder::new()
     }
-    
+
     /// Validate the parallel configuration
     pub fn validate(&self) -> CompressionResult<()> {
         // Cross-field validation
@@ -290,13 +290,13 @@ impl ParallelConfig {
                 "High thread counts require larger channel buffers to prevent bottlenecks",
             ));
         }
-        
+
         if self.chunk_size.get() > self.memory_map_threshold.get() {
             return Err(CompressionError::config_validation(
                 "Chunk size cannot be larger than memory map threshold",
             ));
         }
-        
+
         Ok(())
     }
 }
@@ -326,31 +326,31 @@ impl ParallelConfigBuilder {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     /// Set maximum thread count
     pub fn max_threads(mut self, count: usize) -> Self {
         self.max_threads = Some(count);
         self
     }
-    
+
     /// Set chunk size in bytes
     pub fn chunk_size(mut self, size: usize) -> Self {
         self.chunk_size = Some(size);
         self
     }
-    
+
     /// Set channel buffer size
     pub fn channel_buffer_size(mut self, size: usize) -> Self {
         self.channel_buffer_size = Some(size);
         self
     }
-    
+
     /// Set memory map threshold in bytes
     pub fn memory_map_threshold(mut self, threshold: usize) -> Self {
         self.memory_map_threshold = Some(threshold);
         self
     }
-    
+
     /// Build the parallel configuration with validation
     pub fn build(self) -> CompressionResult<ParallelConfig> {
         let config = ParallelConfig {
@@ -371,7 +371,7 @@ impl ParallelConfigBuilder {
                 None => MemoryMapThreshold::default(),
             },
         };
-        
+
         config.validate()?;
         Ok(config)
     }
@@ -384,6 +384,7 @@ pub struct CompressionConfig {
     pub min_frequency_threshold: FrequencyThreshold,
     pub enable_zstd_compression: bool,
     pub zstd_compression_level: ZstdLevel,
+    #[allow(dead_code)]
     pub parallel_config: ParallelConfig,
 }
 
@@ -392,7 +393,7 @@ impl CompressionConfig {
     pub fn builder() -> CompressionConfigBuilder {
         CompressionConfigBuilder::new()
     }
-    
+
     /// Validate the configuration
     pub fn validate(&self) -> CompressionResult<()> {
         // Additional cross-field validation can be added here
@@ -432,37 +433,38 @@ impl CompressionConfigBuilder {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     /// Set minimum pattern length
     pub fn min_pattern_length(mut self, length: usize) -> Self {
         self.min_pattern_length = Some(length);
         self
     }
-    
+
     /// Set frequency threshold
     pub fn min_frequency_threshold(mut self, threshold: usize) -> Self {
         self.min_frequency_threshold = Some(threshold);
         self
     }
-    
+
     /// Enable or disable zstd compression
     pub fn enable_zstd_compression(mut self, enable: bool) -> Self {
         self.enable_zstd_compression = Some(enable);
         self
     }
-    
+
     /// Set zstd compression level
+    #[allow(dead_code)]
     pub fn zstd_compression_level(mut self, level: i32) -> Self {
         self.zstd_compression_level = Some(level);
         self
     }
-    
+
     /// Set parallel configuration
     pub fn parallel_config(mut self, config: ParallelConfig) -> Self {
         self.parallel_config = Some(config);
         self
     }
-    
+
     /// Build the configuration with validation
     pub fn build(self) -> CompressionResult<CompressionConfig> {
         let config = CompressionConfig {
@@ -481,7 +483,7 @@ impl CompressionConfigBuilder {
             },
             parallel_config: self.parallel_config.unwrap_or_default(),
         };
-        
+
         config.validate()?;
         Ok(config)
     }
@@ -490,28 +492,28 @@ impl CompressionConfigBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_min_pattern_length_validation() {
         assert!(MinPatternLength::new(1).is_err());
         assert!(MinPatternLength::new(4).is_ok());
         assert!(MinPatternLength::new(101).is_err());
     }
-    
+
     #[test]
     fn test_frequency_threshold_validation() {
         assert!(FrequencyThreshold::new(1).is_err());
         assert!(FrequencyThreshold::new(3).is_ok());
         assert!(FrequencyThreshold::new(1001).is_err());
     }
-    
+
     #[test]
     fn test_zstd_level_validation() {
         assert!(ZstdLevel::new(0).is_err());
         assert!(ZstdLevel::new(3).is_ok());
         assert!(ZstdLevel::new(23).is_err());
     }
-    
+
     #[test]
     fn test_config_builder_pattern() {
         let config = CompressionConfig::builder()
@@ -521,23 +523,23 @@ mod tests {
             .zstd_compression_level(6)
             .build()
             .unwrap();
-        
+
         assert_eq!(config.min_pattern_length.get(), 5);
         assert_eq!(config.min_frequency_threshold.get(), 4);
         assert!(!config.enable_zstd_compression);
         assert_eq!(config.zstd_compression_level.get(), 6);
     }
-    
+
     #[test]
     fn test_config_validation() {
         let config = CompressionConfig::builder()
             .min_pattern_length(60)
             .min_frequency_threshold(2)
             .build();
-        
+
         assert!(config.is_err());
     }
-    
+
     #[test]
     fn test_default_config() {
         let config = CompressionConfig::default();
@@ -548,74 +550,74 @@ mod tests {
         // Test that parallel config is included
         assert!(config.parallel_config.max_threads.get() > 0);
     }
-    
+
     // TDD Tests for Parallel Processing Types
-    
+
     #[test]
     fn test_thread_count_validation() {
         // Test invalid values
         assert!(ThreadCount::new(0).is_err());
         assert!(ThreadCount::new(257).is_err());
-        
+
         // Test valid values
         assert!(ThreadCount::new(1).is_ok());
         assert!(ThreadCount::new(8).is_ok());
         assert!(ThreadCount::new(256).is_ok());
-        
+
         // Test default is reasonable
         let default = ThreadCount::default();
         assert!(default.get() > 0);
         assert!(default.get() <= 256);
     }
-    
+
     #[test]
     fn test_chunk_size_validation() {
         // Test invalid values
         assert!(ChunkSize::new(1023).is_err()); // Less than 1KB
         assert!(ChunkSize::new(11 * 1024 * 1024).is_err()); // More than 10MB
-        
+
         // Test valid values
         assert!(ChunkSize::new(1024).is_ok()); // 1KB
         assert!(ChunkSize::new(64 * 1024).is_ok()); // 64KB
         assert!(ChunkSize::new(10 * 1024 * 1024).is_ok()); // 10MB
-        
+
         // Test default
         let default = ChunkSize::default();
         assert_eq!(default.get(), 64 * 1024);
     }
-    
+
     #[test]
     fn test_channel_buffer_size_validation() {
         // Test invalid values
         assert!(ChannelBufferSize::new(0).is_err());
         assert!(ChannelBufferSize::new(10001).is_err());
-        
+
         // Test valid values
         assert!(ChannelBufferSize::new(1).is_ok());
         assert!(ChannelBufferSize::new(100).is_ok());
         assert!(ChannelBufferSize::new(10000).is_ok());
-        
+
         // Test default
         let default = ChannelBufferSize::default();
         assert_eq!(default.get(), 100);
     }
-    
+
     #[test]
     fn test_memory_map_threshold_validation() {
         // Test invalid values
         assert!(MemoryMapThreshold::new(1023).is_err()); // Less than 1KB
         assert!(MemoryMapThreshold::new(1024 * 1024 * 1024 + 1).is_err()); // More than 1GB
-        
+
         // Test valid values
         assert!(MemoryMapThreshold::new(1024).is_ok()); // 1KB
         assert!(MemoryMapThreshold::new(1024 * 1024).is_ok()); // 1MB
         assert!(MemoryMapThreshold::new(1024 * 1024 * 1024).is_ok()); // 1GB
-        
+
         // Test default
         let default = MemoryMapThreshold::default();
         assert_eq!(default.get(), 1024 * 1024);
     }
-    
+
     #[test]
     fn test_parallel_config_builder_pattern() {
         let config = ParallelConfig::builder()
@@ -625,13 +627,13 @@ mod tests {
             .memory_map_threshold(2 * 1024 * 1024)
             .build()
             .unwrap();
-        
+
         assert_eq!(config.max_threads.get(), 8);
         assert_eq!(config.chunk_size.get(), 128 * 1024);
         assert_eq!(config.channel_buffer_size.get(), 200);
         assert_eq!(config.memory_map_threshold.get(), 2 * 1024 * 1024);
     }
-    
+
     #[test]
     fn test_parallel_config_validation() {
         // Test cross-field validation: high thread count with small buffer
@@ -639,18 +641,18 @@ mod tests {
             .max_threads(128)
             .channel_buffer_size(10)
             .build();
-        
+
         assert!(config.is_err());
-        
+
         // Test chunk size larger than memory map threshold
         let config = ParallelConfig::builder()
             .chunk_size(2 * 1024 * 1024)
             .memory_map_threshold(1024 * 1024)
             .build();
-        
+
         assert!(config.is_err());
     }
-    
+
     #[test]
     fn test_parallel_config_default() {
         let config = ParallelConfig::default();
@@ -658,11 +660,11 @@ mod tests {
         assert_eq!(config.chunk_size.get(), 64 * 1024);
         assert_eq!(config.channel_buffer_size.get(), 100);
         assert_eq!(config.memory_map_threshold.get(), 1024 * 1024);
-        
+
         // Validate default config is valid
         assert!(config.validate().is_ok());
     }
-    
+
     #[test]
     fn test_compression_config_with_parallel_config() {
         let parallel_config = ParallelConfig::builder()
@@ -670,29 +672,29 @@ mod tests {
             .chunk_size(32 * 1024)
             .build()
             .unwrap();
-        
+
         let config = CompressionConfig::builder()
             .min_pattern_length(5)
             .parallel_config(parallel_config)
             .build()
             .unwrap();
-        
+
         assert_eq!(config.min_pattern_length.get(), 5);
         assert_eq!(config.parallel_config.max_threads.get(), 4);
         assert_eq!(config.parallel_config.chunk_size.get(), 32 * 1024);
     }
-    
+
     #[test]
     fn test_display_formatting() {
         let thread_count = ThreadCount::new(8).unwrap();
         assert_eq!(format!("{}", thread_count), "8");
-        
+
         let chunk_size = ChunkSize::new(128 * 1024).unwrap();
         assert_eq!(format!("{}", chunk_size), "128KB");
-        
+
         let buffer_size = ChannelBufferSize::new(150).unwrap();
         assert_eq!(format!("{}", buffer_size), "150");
-        
+
         let threshold = MemoryMapThreshold::new(2 * 1024 * 1024).unwrap();
         assert_eq!(format!("{}", threshold), "2MB");
     }

@@ -4,7 +4,6 @@
 //! CLI integration, file processing, compression pipeline, and output generation.
 
 use std::fs;
-use std::path::PathBuf;
 use std::process::Command;
 use tempfile::TempDir;
 
