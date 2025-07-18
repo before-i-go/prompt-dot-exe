@@ -44,27 +44,10 @@ The `ts-compressor` tool is a **production-ready Rust application** that demonst
 cd ts-compressor
 cargo build --release
 
-# Basic compression with intelligent defaults
-./target/release/ts-compressor universal-compress my-project
-
 # LLM-optimized archiving (excludes build artifacts, dependencies, binaries)
 ./target/release/ts-compressor archive my-project --llm-optimize --show-filter-stats
 
-# High-performance parallel compression
-./target/release/ts-compressor universal-compress large-project \
-  --min-pattern-length 5 \
-  --min-frequency-threshold 4 \
-  --enable-zstd \
-  --max-threads 16 \
-  --chunk-size-kb 256
 
-# Resumable compression with checkpointing
-./target/release/ts-compressor universal-compress enterprise-project \
-  --database-path ./compression.db \
-  --memory-map-threshold-mb 10
-
-# Resume if interrupted
-./target/release/ts-compressor resume --database-path ./compression.db
 ```
 
 ## 📁 Repository Structure
