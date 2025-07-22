@@ -1,0 +1,22 @@
+[package]
+name = "common"
+version = "0.1.0"
+edition = "2021"
+description = "Shared utilities for code tools"
+
+[dependencies]
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+walkdir = { workspace = true }
+git2 = { workspace = true }
+mime_guess = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
+dunce = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+assert_fs = { workspace = true }
+predicates = { workspace = true }

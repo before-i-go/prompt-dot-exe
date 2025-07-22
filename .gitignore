@@ -120,8 +120,8 @@ benchmark_results/
 # Compression artifacts and test outputs
 *.compressed
 *.archive
-*.txt
-compression_patterns.db
+# *.txt
+# compression_patterns.db
 compression_patterns.db-*
 
 # Temporary test files

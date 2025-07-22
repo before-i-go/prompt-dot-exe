@@ -1,0 +1,26 @@
+[package]
+name = "code-archiver"
+version = "0.1.0"
+edition = "2021"
+description = "A tool for archiving code directories with filtering and formatting options"
+
+[dependencies]
+common = { path = "../common" }
+ignore = "0.4"
+glob = "0.3"
+clap = { version = "4.0", features = ["derive"] }
+thiserror = "1.0"
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+toml = "0.7"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+bytesize = "1.1"
+
+[dev-dependencies]
+tempfile = "3.3"
+assert_fs = "1.0"
+predicates = "2.1"
+rstest = "0.18"
