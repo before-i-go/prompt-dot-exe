@@ -1,146 +1,126 @@
 # 🧙‍♂️ Interview Irodov
 
-*"Ah, my dear student of the digital arts! Within these virtual halls lies a most curious collection of knowledge - both the ancient runes of interview preparation and a rather nifty collection of magical coding artifacts. Do tread carefully, for wisdom and magic await those who seek them."*
+> A collection of command-line tools for code processing and analysis
 
-*Albus Dumbledore's Repository of Magical Coding Artifacts and Interview Enchantments*
+## 🚀 Quick Start
 
-## 🚀 Quick Start (No Installation Needed)
-
-### 1. Compress TypeScript/JavaScript Files
+### Compress TypeScript/JavaScript
 ```bash
-# From repository root
-cargo run --release -p ts-compressor -- compress ./src ./dist
-```
-
-### 2. Create a Code Archive (Great for LLM Context)
-```bash
-# Creates a text file with all your source code
-cargo run --release -p ts-compressor -- archive ./your-project
-```
-
-### 3. Explore Project Structure
-```bash
-# View project files with sizes and types
-cargo run --release -p code-archiver -- --root ./your-project
-```
-
-## 📋 Table of Contents
-- [Quick Start](#-quick-start)
-- [Core Tools](#-core-tools)
-  - [TypeScript Compressor](#-typescript-compressor)
-  - [Code Archiver](#-code-archiver)
-  - [File Splitter](#-file-splitter)
-- [Learning Resources](#-learning-resources)
-- [Development](#-development)
-- [License](#-license)
-
-## 🛠 Installation (Optional)
-
-Only needed if you want to install the tools globally:
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/interview-irodov.git
-# Navigate into the project directory
-cd interview-irodov
-# Build all tools in release mode (optimized for speed)
-cargo build --release
-
-# Install ts-compressor globally (optional, adds 'ts-compressor' to your PATH)
-cargo install --path ts-compressor
-# Install code-archiver globally (optional, adds 'code-archiver' to your PATH)
-cargo install --path code-archiver
-```
-
-## 🔧 Core Tools
-
-### 📦 TypeScript Compressor
-
-#### Basic Usage
-```bash
-# Compress TypeScript files
-# -p ts-compressor: Select the ts-compressor package
-# compress: The compression command
-# ./src: Input directory containing TypeScript files
-# ./dist: Output directory for minified JavaScript files
+# Compile and minify TypeScript to JavaScript
 cargo run --release -p ts-compressor -- compress ./src ./dist
 
 # Create a text archive of your project
-# archive: The archive command
-# ./your-project: Target folder to archive
 cargo run --release -p ts-compressor -- archive ./your-project
 ```
 
-#### Advanced Options
+### Analyze Project Structure
 ```bash
-# Create an archive with custom options
-# --output-dir: Specify output directory (defaults to parent of target)
-# --ignore-pattern: Exclude files matching the glob pattern
-# --include-extensions: Only include specific file extensions
-cargo run --release -p ts-compressor -- archive ./project \
-    --output-dir ./archives \
-    --ignore-pattern "**/__tests__/**" \
-    --ignore-pattern "**/node_modules/**" \
-    --include-extensions rs,js,ts,py
-```
-
-### 🗃 Code Archiver
-
-#### Basic Usage
-```bash
-# View project structure
-# -d, --dir: Specify the directory to analyze (defaults to current directory)
-# -v: Enable verbose output
+# View files with sizes and types
 cargo run --release -p code-archiver -- -d ./your-project -v
 
-# Filter files by extension and exclude patterns
-# -e, --extensions: Only show files with these extensions
-# -e, --exclude: Exclude files matching the pattern
+# Filter specific file types
 cargo run --release -p code-archiver -- -d ./your-project \
-    --extensions rs,toml,md \
-    --exclude "**/target/**" \
-    --format json
+    --extensions js,ts,json \
+    --exclude "**/node_modules/**"
 ```
 
-### ✂️ File Splitter
-
+### Split Large Files
 ```bash
-# Split large files into smaller chunks
-# -i, --input: Input file to split
-# -o, --output-dir: Output directory (default: same as input file)
-# -c, --chunk-size: Size of each chunk (e.g., 10M for 10MB)
-# -p, --prefix: Custom prefix for output files
+# Split file into 1MB chunks
 cargo run --release -p file-splitter -- \
     --input large-file.txt \
     --output-dir ./chunks \
-    --chunk-size 10M \
-    --prefix "part_" \
+    --chunk-size 1M \
+    --prefix "part_"
+
+  # example 
+cargo run --release -p file-splitter -- \                                                          
+    --input /home/amuldotexe/Desktop/GitHub202410/ab202507/strapi-20250725092034.txt  \
+    --output-dir /home/amuldotexe/Desktop/GitHub202410/ab202507/ \
+    --chunk-size 1M \
+    --prefix "strapi_part_" \
     --digits 4
 ```
+## 🔧 Installation
 
-## 📚 Learning Resources
-- **Rust Idioms**: `impRustIdioms/` directory
-- **Code Examples**: Explore the `examples/` directory
+```bash
+git clone https://github.com/yourusername/interview-irodov.git
+cd interview-irodov
+cargo build --release
 
-## 📜 Table of Contents
+# Optional: Install tools globally
+cargo install --path ts-compressor
+cargo install --path code-archiver
+```
 
-- [Project Components](#-project-components)
-- [Core Tools](#-core-tools)
-  - [The Marauder's Compressor](#-the-marauders-compressor) - Taming the wild TypeScript
-  - [The Code Archiver](#-the-code-archiver) - Preserving your magical code repositories
-  - [File Splitter](#-file-splitter) - Divide and conquer large files
-- [Learning Resources](#-learning-resources)
-  - [Rust Idioms](#-rust-idioms) - Master Rust patterns and best practices
-- [Development](#-development)
-  - [Building from Source](#-building-from-source)
-  - [Running Tests](#-running-tests)
-  - [Contributing](#-contributing)
-- [License](#-license)
+## 📋 Commands Reference
 
-## 🧰 The Marauder's Compressor
+### TypeScript Compressor
+```bash
+# Basic usage
+cargo run --release -p ts-compressor -- compress <input_dir> <output_dir>
 
-*"A most ingenious contraption, wouldn't you agree? With a wave of your terminal and the right incantation, it transforms verbose TypeScript into something rather more... compact. Much like how Fawkes can fit into a small cage, yet remain a magnificent phoenix at heart."*
+# Create archive with filters
+cargo run --release -p ts-compressor -- archive <project_dir> \
+    --output-dir ./archives \
+    --ignore-pattern "**/node_modules/**" \
+    --include-extensions js,ts,json
+```
 
+### Code Archiver
+```bash
+# Basic usage
+cargo run --release -p code-archiver -- -d <directory>
+
+# With filters
+cargo run --release -p code-archiver -- -d <directory> \
+    --extensions js,ts,json \
+    --exclude "**/node_modules/**" \
+    --format json
+```
+
+#### Default Ignore Behavior
+
+By default, the archiver respects `.gitignore` files and automatically excludes:
+
+- Version control directories: `.git/`
+- Dependency directories: `node_modules/`, `target/`
+- Build outputs: `dist/`, `build/`
+- Hidden files/directories (starting with `.`), unless `--hidden` is set
+
+#### Common Ignore Patterns
+
+| Category       | Patterns to Exclude
+|----------------|-------------------
+| **Node.js**    | `node_modules/`, `.npm/`, `package-lock.json`, `yarn.lock`
+| **Rust**       | `target/`, `**/target/*`, `Cargo.lock`
+| **Python**     | `__pycache__/`, `*.pyc`, `venv/`, `.pytest_cache/`
+| **Build**      | `dist/`, `build/`, `.next/`, `.vercel/`, `coverage/`
+| **Editors**    | `.vscode/`, `.idea/`, `*.swp`, `*.swo`
+
+To customize:
+```bash
+# Include hidden files
+cargo run --release -p code-archiver -- -d . --hidden
+
+# Add custom exclude patterns
+cargo run --release -p code-archiver -- -d . \
+    --exclude "**/node_modules/**" \
+    --exclude "**/target/**" \
+    --exclude "**/*.log"
+```
+
+### File Splitter
+```bash
+# Basic usage
+cargo run --release -p file-splitter -- \
+    --input <file> \
+    --chunk-size 10M
+```
+
+## 📚 Resources
+- `impRustIdioms/`: Rust patterns and best practices
+- `examples/`: Usage examples
 ### 🎯 Features
 
 - **TypeScript Compression**: Strip types and minify your TypeScript code
