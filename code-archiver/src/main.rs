@@ -23,9 +23,9 @@ struct Args {
     #[arg(short = 'e', long)]
     extensions: Vec<String>,
     
-    /// Maximum file size (e.g., 1K, 2M, 1G)
+    /// Maximum file size in bytes
     #[arg(long)]
-    max_size: Option<String>,
+    max_size: Option<u64>,
     
     /// Follow symbolic links
     #[arg(short = 'L', long)]
@@ -63,30 +63,21 @@ fn main() {
         .with_max_level(log_level)
         .init();
     
-    // Parse max file size if specified
-    let max_file_size = match args.max_size {
-        Some(size_str) => {
-            match parse_size(&size_str) {
-                Ok(size) => Some(size),
-                Err(e) => {
-                    eprintln!("Error: {}", e);
-                    process::exit(1);
-                }
-            }
-        }
-        None => None,
-    };
+    // Use max_size directly as it's now a u64
+    let max_file_size = args.max_size;
     
     // Create archive configuration
     let config = ArchiveConfig {
         root_dir: args.dir,
-        includes: if args.include.is_empty() { None } else { Some(args.include) },
-        excludes: if args.exclude.is_empty() { None } else { Some(args.exclude) },
+        include: if args.include.is_empty() { None } else { Some(args.include) },
+        exclude: if args.exclude.is_empty() { None } else { Some(args.exclude) },
         extensions: if args.extensions.is_empty() { None } else { Some(args.extensions) },
-        max_file_size,
+        max_size: max_file_size,
         follow_links: args.follow_links,
-        include_hidden: args.hidden,
-        respect_gitignore: !args.no_gitignore,
+        hidden: args.hidden,
+        gitignore: !args.no_gitignore,
+        include_git_status: false,  // Default to false for CLI
+        include_ignored: false,     // Default to false for CLI
     };
     
     // Create and run the archiver
