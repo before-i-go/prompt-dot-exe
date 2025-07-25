@@ -52,8 +52,8 @@
 - [x] Push tags: `git push --tags`
 
 ### Post-Release
-- [ ] Create GitHub release with release notes
-- [ ] Update any dependency references in dependent projects
-- [ ] Announce the release (if applicable)
+- [x] Create GitHub release with release notes
+- [x] Update any dependency references in dependent projects
+- [x] Announce the release (if applicable)
 
 

@@ -4,46 +4,123 @@
 
 *Albus Dumbledore's Repository of Magical Coding Artifacts and Interview Enchantments*
 
-# 🧙‍♂️ Interview Irodov
+## 🚀 Quick Start (No Installation Needed)
 
-*"Ah, my dear student of the digital arts! Within these virtual halls lies a most curious collection of knowledge - both the ancient runes of interview preparation and a rather nifty collection of magical coding artifacts. Do tread carefully, for wisdom and magic await those who seek them."*
+### 1. Compress TypeScript/JavaScript Files
+```bash
+# From repository root
+cargo run --release -p ts-compressor -- compress ./src ./dist
+```
 
-*Albus Dumbledore's Repository of Magical Coding Artifacts and Interview Enchantments*
+### 2. Create a Code Archive (Great for LLM Context)
+```bash
+# Creates a text file with all your source code
+cargo run --release -p ts-compressor -- archive ./your-project
+```
 
-## 🚀 Quick Start
+### 3. Explore Project Structure
+```bash
+# View project files with sizes and types
+cargo run --release -p code-archiver -- --root ./your-project
+```
 
-### Prerequisites
-- Rust 1.70 or later
-- Git
-- Cargo (Rust's package manager)
+## 📋 Table of Contents
+- [Quick Start](#-quick-start)
+- [Core Tools](#-core-tools)
+  - [TypeScript Compressor](#-typescript-compressor)
+  - [Code Archiver](#-code-archiver)
+  - [File Splitter](#-file-splitter)
+- [Learning Resources](#-learning-resources)
+- [Development](#-development)
+- [License](#-license)
 
-### Installation
+## 🛠 Installation (Optional)
+
+Only needed if you want to install the tools globally:
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/interview-irodov.git
+# Navigate into the project directory
 cd interview-irodov
-
-# Build all tools
+# Build all tools in release mode (optimized for speed)
 cargo build --release
 
-# Install binaries (optional)
+# Install ts-compressor globally (optional, adds 'ts-compressor' to your PATH)
 cargo install --path ts-compressor
+# Install code-archiver globally (optional, adds 'code-archiver' to your PATH)
 cargo install --path code-archiver
-cargo install --path file-splitter
 ```
 
-## 🏗 Project Components
+## 🔧 Core Tools
 
-### 🧰 Core Tools
-- **ts-compressor**: Compresses TypeScript files while maintaining readability
-- **code-archiver**: Archives and analyzes code repositories with Git integration
-- **file-splitter**: Splits large files into manageable chunks
-- **common**: Shared utilities and libraries used by other components
+### 📦 TypeScript Compressor
 
-### 📚 Learning Resources
-- **impRustIdioms**: Comprehensive collection of Rust patterns and best practices
-- **Rust Idioms Deep Dive**: In-depth exploration of idiomatic Rust patterns
+#### Basic Usage
+```bash
+# Compress TypeScript files
+# -p ts-compressor: Select the ts-compressor package
+# compress: The compression command
+# ./src: Input directory containing TypeScript files
+# ./dist: Output directory for minified JavaScript files
+cargo run --release -p ts-compressor -- compress ./src ./dist
+
+# Create a text archive of your project
+# archive: The archive command
+# ./your-project: Target folder to archive
+cargo run --release -p ts-compressor -- archive ./your-project
+```
+
+#### Advanced Options
+```bash
+# Create an archive with custom options
+# --output-dir: Specify output directory (defaults to parent of target)
+# --ignore-pattern: Exclude files matching the glob pattern
+# --include-extensions: Only include specific file extensions
+cargo run --release -p ts-compressor -- archive ./project \
+    --output-dir ./archives \
+    --ignore-pattern "**/__tests__/**" \
+    --ignore-pattern "**/node_modules/**" \
+    --include-extensions rs,js,ts,py
+```
+
+### 🗃 Code Archiver
+
+#### Basic Usage
+```bash
+# View project structure
+# -d, --dir: Specify the directory to analyze (defaults to current directory)
+# -v: Enable verbose output
+cargo run --release -p code-archiver -- -d ./your-project -v
+
+# Filter files by extension and exclude patterns
+# -e, --extensions: Only show files with these extensions
+# -e, --exclude: Exclude files matching the pattern
+cargo run --release -p code-archiver -- -d ./your-project \
+    --extensions rs,toml,md \
+    --exclude "**/target/**" \
+    --format json
+```
+
+### ✂️ File Splitter
+
+```bash
+# Split large files into smaller chunks
+# -i, --input: Input file to split
+# -o, --output-dir: Output directory (default: same as input file)
+# -c, --chunk-size: Size of each chunk (e.g., 10M for 10MB)
+# -p, --prefix: Custom prefix for output files
+cargo run --release -p file-splitter -- \
+    --input large-file.txt \
+    --output-dir ./chunks \
+    --chunk-size 10M \
+    --prefix "part_" \
+    --digits 4
+```
+
+## 📚 Learning Resources
+- **Rust Idioms**: `impRustIdioms/` directory
+- **Code Examples**: Explore the `examples/` directory
 
 ## 📜 Table of Contents
 
@@ -72,25 +149,35 @@ cargo install --path file-splitter
 - **LLM Optimization**: Prepares your code for AI analysis
 - **Multiple Output Formats**: Text and JSON formats supported
 
-### 🚀 Installation
+### 🚀 Quick Run (No Installation Needed)
+
+Run the tool directly using Cargo - no installation required:
 
 ```bash
-# Build from source
-cd ts-compressor
-cargo install --path .
+# Compress TypeScript files from src/ to dist/
+# This processes .ts and .tsx files, removing type annotations
+# and minifying while preserving functionality
+cargo run --release -p ts-compressor -- compress src/ dist/
+
+# Create a text-based archive of the project
+# Useful for sharing code with LLMs or documentation
+cargo run --release -p ts-compressor -- archive my-project
+
+# Create an archive with exclusions
+# Use glob patterns to exclude temporary and test files
+cargo run --release -p ts-compressor -- archive my-project \
+    --ignore-pattern "*.tmp" \
+    --ignore-pattern "test_*" \
+    --ignore-pattern "**/__tests__/**"
 ```
 
-### 🛠 Usage
+### 🏗 Building for Production
 
+If you want to install it globally:
 ```bash
-# Basic compression
-ts-compressor compress src/ dist/
-
-# Create a project archive
-ts-compressor archive my-project
-
-# With custom ignore patterns
-ts-compressor archive my-project --ignore-pattern "*.tmp" --ignore-pattern "test_*"
+cargo install --path ts-compressor
+# Then you can run it directly:
+ts-compressor --help
 ```
 
 ### 📊 Example Output
@@ -241,17 +328,28 @@ cargo install --path .
 ### 🛠 Usage
 
 ```bash
-# Basic usage
+# Basic usage: Scan all files in the my-project directory
+# Outputs a tree view of the project structure with file sizes
 code-archiver --root ./my-project
 
-# With Git integration
+# With Git integration: Shows Git status for each file
+# (M)odified, (A)dded, (D)eleted, etc.
 code-archiver --root ./my-project --git
 
-# Filter by file patterns
-code-archiver --include '**/*.rs' --exclude '**/test_*.rs'
+# Filter to only include Rust source files (*.rs) but exclude test files
+# The '**/' matches in all subdirectories
+code-archiver \
+    --root ./my-project \
+    --include '**/*.rs' \
+    --exclude '**/test_*.rs' \
+    --exclude '**/tests/'
 
-# Size filtering
-code-archiver --min-size 100 --max-size 10000
+# Filter files by size (in bytes)
+# This example shows files between 100 bytes and 10KB
+code-archiver \
+    --root ./my-project \
+    --min-size 100 \
+    --max-size 10000
 ```
 
 ### 📂 Example Output
@@ -454,14 +552,18 @@ interview-irodov/
 ### Usage
 
 ```bash
-# Basic usage
+# Split a large file into 10MB chunks
+# Output will be: large_file.txt.part1, large_file.txt.part2, etc.
 file-splitter split large_file.txt 10M
 
-# With progress reporting
-file-splitter split --progress large_file.txt 10M
+# Split with progress reporting (shows percentage complete)
+# Useful for very large files
+file-splitter split --progress huge_file.bin 100M
 
-# Using the shell script alternative
-./split_large_file.sh large_file.txt 10
+# Alternative: Use the shell script (splits into 10MB chunks by default)
+# First argument: input file
+# Second argument: number of lines per output file (not size)
+./split_large_file.sh large_log_file.log 100000  # 100k lines per file
 ```
 
 ## 📚 Rust Idioms
@@ -491,34 +593,58 @@ code impRustIdioms/
 ### Building from Source
 
 ```bash
-# Build all components
+# Build all components in release mode (optimized)
+# Output binaries will be in target/release/
 cargo build --release
 
-# Build a specific component
+# Build a specific component (faster for development)
+# -p specifies the package name from Cargo.toml
 cargo build -p code-archiver --release
+
+# Example: Build and install just the ts-compressor
+cargo install --path ts-compressor --force
 ```
 
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests across all workspace members
 cargo test --workspace
 
 # Run tests for a specific component
+# -p specifies the package to test
 cargo test -p code-archiver
 
-# Run with detailed logging
+# Run a specific test by name
+cargo test test_archive_creation -- --nocapture
+
+# Run with detailed logging (useful for debugging)
+# RUST_LOG=debug enables debug-level logging
+# --nocapture shows println! output during tests
 RUST_LOG=debug cargo test -- --nocapture
 ```
 
 ### Code Quality
 
 ```bash
-# Format code
+# Format all Rust code according to style guidelines
+# This modifies files in place to match the standard Rust style
 cargo fmt --all
 
-# Check for common issues
+# Run Clippy for additional code quality checks
+# -D warnings turns all warnings into errors
+# --all-targets checks all targets (lib, bins, tests, examples, etc.)
 cargo clippy --all-targets -- -D warnings
+
+# Additional useful development commands:
+# Check for unused dependencies
+cargo udeps
+
+# Update dependencies
+cargo update
+
+# Check for security vulnerabilities
+cargo audit
 ```
 
 ## 🧪 Testing
