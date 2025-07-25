@@ -1,21 +1,108 @@
 # 🧙‍♂️ Interview Irodov
 
-*"Ah, my dear student of the digital arts! Within these virtual halls lies a most curious collection of knowledge - both the ancient runes of interview preparation and a rather nifty little tool for taming the wild TypeScript. Do tread carefully, for wisdom and magic await those who seek them."*
+*"Ah, my dear student of the digital arts! Within these virtual halls lies a most curious collection of knowledge - both the ancient runes of interview preparation and a rather nifty collection of magical coding artifacts. Do tread carefully, for wisdom and magic await those who seek them."*
 
 *Albus Dumbledore's Repository of Magical Coding Artifacts and Interview Enchantments*
+
+# 🧙‍♂️ Interview Irodov
+
+*"Ah, my dear student of the digital arts! Within these virtual halls lies a most curious collection of knowledge - both the ancient runes of interview preparation and a rather nifty collection of magical coding artifacts. Do tread carefully, for wisdom and magic await those who seek them."*
+
+*Albus Dumbledore's Repository of Magical Coding Artifacts and Interview Enchantments*
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Rust 1.70 or later
+- Git
+- Cargo (Rust's package manager)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/interview-irodov.git
+cd interview-irodov
+
+# Build all tools
+cargo build --release
+
+# Install binaries (optional)
+cargo install --path ts-compressor
+cargo install --path code-archiver
+cargo install --path file-splitter
+```
+
+## 🏗 Project Components
+
+### 🧰 Core Tools
+- **ts-compressor**: Compresses TypeScript files while maintaining readability
+- **code-archiver**: Archives and analyzes code repositories with Git integration
+- **file-splitter**: Splits large files into manageable chunks
+- **common**: Shared utilities and libraries used by other components
+
+### 📚 Learning Resources
+- **impRustIdioms**: Comprehensive collection of Rust patterns and best practices
+- **Rust Idioms Deep Dive**: In-depth exploration of idiomatic Rust patterns
+
+## 📜 Table of Contents
+
+- [Project Components](#-project-components)
+- [Core Tools](#-core-tools)
+  - [The Marauder's Compressor](#-the-marauders-compressor) - Taming the wild TypeScript
+  - [The Code Archiver](#-the-code-archiver) - Preserving your magical code repositories
+  - [File Splitter](#-file-splitter) - Divide and conquer large files
+- [Learning Resources](#-learning-resources)
+  - [Rust Idioms](#-rust-idioms) - Master Rust patterns and best practices
+- [Development](#-development)
+  - [Building from Source](#-building-from-source)
+  - [Running Tests](#-running-tests)
+  - [Contributing](#-contributing)
+- [License](#-license)
 
 ## 🧰 The Marauder's Compressor
 
 *"A most ingenious contraption, wouldn't you agree? With a wave of your terminal and the right incantation, it transforms verbose TypeScript into something rather more... compact. Much like how Fawkes can fit into a small cage, yet remain a magnificent phoenix at heart."*
 
-### 🪄 Compilation Charm
+### 🎯 Features
+
+- **TypeScript Compression**: Strip types and minify your TypeScript code
+- **Smart Filtering**: Automatically excludes build artifacts and dependencies
+- **Git Integration**: Respects `.gitignore` rules by default
+- **LLM Optimization**: Prepares your code for AI analysis
+- **Multiple Output Formats**: Text and JSON formats supported
+
+### 🚀 Installation
 
 ```bash
+# Build from source
 cd ts-compressor
-cargo build --release  # The modern wizard's equivalent of 'Wingardium Leviosa'
+cargo install --path .
 ```
 
-*"A word to the wise: This spell requires Rust 1.70 or later, and the ever-useful Git - though I daresay you've already made its acquaintance."*
+### 🛠 Usage
+
+```bash
+# Basic compression
+ts-compressor compress src/ dist/
+
+# Create a project archive
+ts-compressor archive my-project
+
+# With custom ignore patterns
+ts-compressor archive my-project --ignore-pattern "*.tmp" --ignore-pattern "test_*"
+```
+
+### 📊 Example Output
+
+```
+📊 File Filtering Statistics:
+   Total files found: 247
+   Files included: 23 🟢
+   Files excluded: 224 🔴
+   Inclusion rate: 9.3% 📈
+   Total size included: 1.2 MB 💾
+```
 
 ### 📜 The Spellbook of Commands
 
@@ -131,12 +218,115 @@ cargo run -- --help  # Consult the ancient scrolls
 cargo run -- archive ../test-input  # A small sacrifice to the testing gods
 ```
 
+## 🏰 The Code Archiver
+
+*"A most ingenious magical artifact for the modern witch or wizard! This enchanted tool allows you to capture and organize your magical code repositories with the flick of a wand—or rather, the press of a key. It's particularly useful for preparing your potions—er, projects—for the Wizarding Code Review Board."*
+
+### ✨ Features
+
+- **Smart File Filtering**: Include/exclude files using glob patterns
+- **Git Integration**: Track file status in Git repositories
+- **Size-based Filtering**: Filter files by size
+- **Multiple Output Formats**: JSON and plain text output
+- **Detailed Logging**: Built-in logging for debugging
+
+### 🚀 Installation
+
+```bash
+# Build from source
+cd code-archiver
+cargo install --path .
+```
+
+### 🛠 Usage
+
+```bash
+# Basic usage
+code-archiver --root ./my-project
+
+# With Git integration
+code-archiver --root ./my-project --git
+
+# Filter by file patterns
+code-archiver --include '**/*.rs' --exclude '**/test_*.rs'
+
+# Size filtering
+code-archiver --min-size 100 --max-size 10000
+```
+
+### 📂 Example Output
+
+```
+📦 Project: my-project
+├── src/
+│   ├── main.rs (1.2 KB)
+│   └── lib.rs (0.8 KB)
+└── Cargo.toml (0.3 KB)
+
+Total files: 3 | Total size: 2.3 KB
+```
+
+### 🪄 The Archive Charm
+
+```bash
+cd code-archiver
+cargo build --release  # Conjuring the archive's magical core
+```
+
+*"A word of caution: This spell requires Rust 1.70 or later, and a touch of Git magic - though I daresay you've already made their acquaintance."*
+
+### 📜 The Archiver's Grimoire
+
+**Basic Incantation:**
+```bash
+./target/release/code-archiver archive /path/to/your/repo
+```
+
+**With Git Integration (for tracking file statuses):**
+```bash
+./target/release/code-archiver archive /path/to/your/repo --git
+```
+
+**Filtering Spells:**
+```bash
+# Only include specific file extensions
+./target/release/code-archiver archive /path/to/your/repo --extensions rs,toml,md
+
+# Exclude certain directories
+./target/release/code-archiver archive /path/to/your/repo --exclude "**/target" --exclude "**/node_modules"
+
+# Filter by file size (in bytes)
+./target/release/code-archiver archive /path/to/your/repo --min-size 100 --max-size 10000
+```
+
+### 🏆 Features Worthy of the House Cup
+
+- **Git Integration**: Like the Marauder's Map, it reveals the hidden status of your files - tracked, modified, or untracked
+- **Smart Filtering**: With the precision of a Seer, it can include or exclude files based on patterns and extensions
+- **Size Matters**: Filter files by size, because even magic has its limits
+- **JSON Output**: Structured like a well-organized potion ingredients cabinet
+- **Respects .gitignore**: Because some things are meant to remain hidden, like the Chamber of Secrets
+
+### 🧪 Testing Your Spells
+
+*"Every great wizard tests their spells before using them in the field. The Department of Mysteries suggests:"*
+
+```bash
+cd code-archiver
+cargo test  # The Standard Book of Spells, Testing Edition
+cargo run -- --help  # Consult the ancient scrolls
+```
+
 ## 🏰 The Castle Layout
 
 *"Every great wizard's tower has its secrets, and this repository is no exception. Here's what lies within these digital walls:"*
 
 ```
-├── ts-compressor/           # The Marauder's Map of Code Compression
+├── code-archiver/          # The Pensieve of Code Archiving
+│   ├── src/                # The very soul of the archiver
+│   ├── tests/              # The Triwizard Tournament (challenges await!)
+│   └── Cargo.toml          # The Potion Master's recipe book
+├── ts-compressor/          # The Marauder's Map of Code Compression
 │   ├── src/main.rs         # The Sorcerer's Stone (core logic)
 │   ├── Cargo.toml          # The Potion Master's recipe book
 │   └── tests/              # The Triwizard Tournament (challenges await!)
@@ -150,7 +340,7 @@ cargo run -- archive ../test-input  # A small sacrifice to the testing gods
 └── split_large_file.sh     # The Sword of Gryffindor (for cutting large files)
 ```
 
-## 🧙‍♂️ Magical Ingredients
+## 🧙‍♂️ Magical Ingredients (Code Archiver Edition)
 
 *"No spell is complete without the right components. These are the enchanted artifacts that make our magic possible:"*
 
@@ -171,3 +361,207 @@ cargo run -- archive ../test-input  # A small sacrifice to the testing gods
 - Various `.md` scrolls containing the collective wisdom of wizards past
 
 *"Remember, it does not do to dwell on dreams and forget to live... but a little preparation never hurt anyone. Now, off you go - I believe you have some code to write?"*
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Rust 1.70 or later
+- Git (for version control integration)
+- Cargo (Rust's package manager)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/interview-irodov.git
+cd interview-irodov
+
+# Build all tools
+cargo build --release
+
+# Install binaries to your Cargo bin directory
+cargo install --path ts-compressor
+cargo install --path code-archiver
+```
+
+## 📝 Usage Examples
+
+### Using The Marauder's Compressor
+
+```bash
+# Compress a TypeScript project
+ts-compressor compress src/ dist/
+
+# Create a project archive with LLM optimization
+ts-compressor archive my-project --llm-optimize
+
+# Custom file inclusion
+ts-compressor archive my-project --include-extensions rs,js,ts,md
+```
+
+### Using The Code Archiver
+
+```bash
+# Basic archive creation
+code-archiver --root ./my-project
+
+# With Git integration and size filtering
+code-archiver --root ./my-project --git --min-size 100 --max-size 10000
+
+# Output to JSON format
+code-archiver --root ./my-project --format json > project-structure.json
+```
+
+## 🏗 Project Structure
+
+```
+interview-irodov/
+├── code-archiver/      # The Code Archiver
+│   ├── src/            # Source code
+│   ├── tests/          # Test files
+│   └── Cargo.toml      # Rust package configuration
+├── common/             # Shared utilities
+│   ├── src/            # Shared code
+│   └── Cargo.toml
+├── file-splitter/      # File splitting utility
+│   ├── src/            # Source code
+│   ├── tests/          # Test files
+│   └── Cargo.toml
+├── impRustIdioms/      # Rust patterns and practices
+│   ├── i00-pattern-list.txt  # Comprehensive pattern list
+│   └── Rust Idiomatic Patterns Deep Dive_.md
+├── test-input/         # Test files for development
+├── ts-compressor/      # The Marauder's Compressor
+│   ├── src/            # Source code
+│   ├── tests/          # Test files
+│   └── Cargo.toml
+├── Cargo.toml          # Workspace configuration
+├── Cargo.lock          # Dependency lock file
+└── README.md           # This documentation
+```
+
+## 🔍 File Splitter
+
+*"A handy tool for dividing large files into smaller, more manageable pieces. Particularly useful when dealing with oversized log files or datasets."*
+
+### Features
+- Split files by size
+- Preserve file extensions
+- Configurable chunk size
+- Progress reporting
+
+### Usage
+
+```bash
+# Basic usage
+file-splitter split large_file.txt 10M
+
+# With progress reporting
+file-splitter split --progress large_file.txt 10M
+
+# Using the shell script alternative
+./split_large_file.sh large_file.txt 10
+```
+
+## 📚 Rust Idioms
+
+*"A collection of Rust patterns and best practices, carefully curated for the aspiring Rustacean."*
+
+### Key Topics
+- Ownership and borrowing patterns
+- Error handling strategies
+- Concurrency models
+- Memory safety patterns
+- Async programming
+- And many more...
+
+### Usage
+
+```bash
+# Browse the pattern list
+cat impRustIdioms/i00-pattern-list.txt
+
+# Or open in your favorite editor
+code impRustIdioms/
+```
+
+## 🛠 Development
+
+### Building from Source
+
+```bash
+# Build all components
+cargo build --release
+
+# Build a specific component
+cargo build -p code-archiver --release
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+cargo test --workspace
+
+# Run tests for a specific component
+cargo test -p code-archiver
+
+# Run with detailed logging
+RUST_LOG=debug cargo test -- --nocapture
+```
+
+### Code Quality
+
+```bash
+# Format code
+cargo fmt --all
+
+# Check for common issues
+cargo clippy --all-targets -- -D warnings
+```
+
+## 🧪 Testing
+
+Run all tests for both projects:
+
+```bash
+# Run all tests
+cargo test --workspace
+
+# Run with detailed logging
+RUST_LOG=debug cargo test -- --nocapture
+
+# Run tests for a specific tool
+cd ts-compressor && cargo test
+# or
+cd code-archiver && cargo test
+```
+
+## 🤝 Contributing
+
+We welcome contributions from wizards and Muggles alike! Here's how you can help:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Style
+
+Please follow these guidelines:
+- Use `rustfmt` for consistent code formatting
+- Document public APIs with Rust doc comments
+- Write tests for new features
+- Keep commits small and focused
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Inspired by the need for better code organization and sharing tools
+- Built with the amazing Rust programming language
+- Thanks to all contributors who've helped improve these tools
