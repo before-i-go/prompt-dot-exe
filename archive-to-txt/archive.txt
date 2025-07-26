@@ -1,3 +1,159 @@
+Archive created at 2025-07-26T22:47:33.791149406+05:30
+
+
+=== File: formatter/text.rs ===
+use std::path::Path;
+use chrono::Local;
+use super::Formatter;
+
+pub struct TextFormatter;
+
+impl TextFormatter {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl Formatter for TextFormatter {
+    fn format_header(&self) -> String {
+        format!("Archive created at {}\n\n", Local::now().to_rfc3339())
+    }
+
+    fn format_file(&self, path: &Path, content: &str) -> String {
+        format!("\n=== File: {} ===\n{}\n", path.display(), content)
+    }
+
+    fn format_footer(&self, file_count: usize) -> String {
+        format!("\n=== Summary ===\nTotal files processed: {}\n", file_count)
+    }
+}
+
+
+=== File: config.rs ===
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Config {
+    pub input: PathBuf,
+    pub output: PathBuf,
+    pub include_hidden: bool,
+    pub max_file_size: Option<u64>,
+    pub parallel: bool,
+    #[serde(default)]
+    pub git_info: bool,
+    #[serde(default = "default_format")]
+    pub format: OutputFormat,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub include: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exclude: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub enum OutputFormat {
+    Text,
+    Json,
+    Markdown,
+}
+
+fn default_format() -> OutputFormat {
+    OutputFormat::Text
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            input: PathBuf::from("."),
+            output: PathBuf::from("archive.txt"),
+            include_hidden: false,
+            max_file_size: None,
+            parallel: true,
+            git_info: false,
+            format: OutputFormat::Text,
+            include: None,
+            exclude: None,
+        }
+    }
+}
+
+impl Config {
+    pub fn with_input(mut self, input: impl Into<PathBuf>) -> Self {
+        self.input = input.into();
+        self
+    }
+
+    pub fn with_output(mut self, output: impl Into<PathBuf>) -> Self {
+        self.output = output.into();
+        self
+    }
+
+    pub fn with_include_hidden(mut self, include_hidden: bool) -> Self {
+        self.include_hidden = include_hidden;
+        self
+    }
+
+    pub fn with_parallel(mut self, parallel: bool) -> Self {
+        self.parallel = parallel;
+        self
+    }
+}
+
+
+=== File: formatter/mod.rs ===
+use std::path::Path;
+
+use super::config::OutputFormat;
+
+pub mod text;
+
+pub trait Formatter: Send + Sync {
+    fn format_header(&self) -> String;
+    fn format_file(&self, path: &Path, content: &str) -> String;
+    fn format_footer(&self, file_count: usize) -> String;
+}
+
+pub fn create_formatter(format: OutputFormat) -> Box<dyn Formatter> {
+    match format {
+        OutputFormat::Text => Box::new(text::TextFormatter::new()),
+        _ => unimplemented!("Other formatters not implemented yet"),
+    }
+}
+
+
+=== File: error.rs ===
+use std::path::PathBuf;
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum ArchiveError {
+    #[error("I/O error: {0}")]
+    Io(#[from] std::io::Error),
+
+    #[error("WalkDir error: {0}")]
+    WalkDir(#[from] walkdir::Error),
+
+    #[error("File too large: {0} (max: {1} bytes)")]
+    FileTooLarge(PathBuf, u64),
+
+    #[error("Invalid path: {0}")]
+    InvalidPath(String),
+
+    #[cfg(feature = "git")]
+    #[error("Git error: {0}")]
+    Git(#[from] git2::Error),
+
+    #[error("Serialization error: {0}")]
+    Serialization(#[from] serde_json::Error),
+
+    #[error("Configuration error: {0}")]
+    Config(String),
+}
+
+pub type Result<T> = std::result::Result<T, ArchiveError>;
+
+
+=== File: lib.rs ===
 //! A high-performance library for creating text-based archives of directory contents.
 //!
 //! This library provides functionality to recursively process directories, read file contents,
@@ -170,14 +326,9 @@ impl ArchiveEngine {
         
         // Process files in parallel or sequentially based on config
         if self.config.parallel {
-            // For parallel processing, we need to use static references
-            let formatter = Box::leak(Box::new(formatter));
-            let writer = Box::leak(Box::new(Mutex::new(writer)));
-            let file_count = Box::leak(Box::new(file_count));
-            
-            self.process_files_parallel(&entries, formatter, writer, file_count)?;
+            self.process_files_parallel(&entries, &*formatter, &writer, &file_count)?;
         } else {
-            self.process_files_sequential(&entries, &*formatter, &mut writer, &file_count)?;
+            self.process_files_sequential(&entries, &*formatter, &writer, &file_count)?;
         }
         
         // Write footer with the total file count
@@ -223,11 +374,11 @@ impl ArchiveEngine {
     /// - Uses Rayon's work-stealing scheduler for optimal load balancing
     /// - Minimizes lock contention through buffered writes
     /// - Processes files in chunks to balance between parallelism and overhead
-    fn process_files_parallel<W: Write + Send + 'static>(
+    fn process_files_parallel(
         &self,
-        entries: &[PathBuf],
-        formatter: &'static (dyn FormatterTrait + Sync),
-        writer: &'static Mutex<W>,
+        entries: &[std::path::PathBuf],
+        formatter: &dyn FormatterTrait,
+        writer: &Arc<Mutex<impl Write + Send>>,
         file_count: &AtomicUsize,
     ) -> Result<()> {
         // Create thread-safe references
@@ -293,12 +444,8 @@ impl ArchiveEngine {
         writer: &mut W,
         file_count: &AtomicUsize,
     ) -> Result<()> {
-        // Read file as binary
-        let bytes = std::fs::read(path)
+        let content = std::fs::read_to_string(path)
             .map_err(ArchiveError::Io)?;
-        
-        // Convert to string, replacing invalid UTF-8 sequences with replacement characters
-        let content = String::from_utf8_lossy(&bytes).into_owned();
         
         self.format_and_write(path, &content, formatter, writer)?;
         file_count.fetch_add(1, Ordering::Relaxed);
@@ -348,12 +495,8 @@ impl ArchiveEngine {
         buffer: &mut Vec<u8>,
         file_count: &AtomicUsize,
     ) -> Result<()> {
-        // Read file as binary
-        let bytes = std::fs::read(path)
+        let content = std::fs::read_to_string(path)
             .map_err(ArchiveError::Io)?;
-        
-        // Convert to string, replacing invalid UTF-8 sequences with replacement characters
-        let content = String::from_utf8_lossy(&bytes);
         
         // Get the relative path and convert to string
         let relative_path = path.strip_prefix(&self.config.input)
@@ -547,3 +690,7 @@ mod tests {
         Ok(())
     }
 }
+
+
+=== Summary ===
+Total files processed: 5
