@@ -1,7 +1,27 @@
-//! A library for creating text-based archives of directory contents.
+//! A high-performance library for creating text-based archives of directory contents.
 //!
-//! This library provides functionality to recursively walk through directories,
-//! read file contents, and generate formatted text archives.
+//! This library provides functionality to recursively process directories, read file contents,
+//! and generate formatted text archives with support for both sequential and parallel processing.
+//!
+//! # Features
+//! - Recursive directory traversal
+//! - Parallel processing using Rayon
+//! - Configurable output formats
+//! - Thread-safe operations
+//! - Comprehensive error handling
+//!
+//! # Quick Start
+//! ```no_run
+//! use archive_to_txt::{archive_directory, Config};
+//! use std::path::Path;
+//!
+//! let config = Config::default()
+//!     .with_input("./src")
+//!     .with_output("./archive.txt")
+//!     .with_parallel(true);
+//!
+//! archive_directory("./src", "./archive.txt", &config).unwrap();
+//! ```
 
 #![warn(missing_docs)]
 #![warn(rustdoc::missing_crate_level_docs)]
@@ -27,17 +47,69 @@ use crate::{
 };
 
 /// The main archive engine that handles the archiving process.
+///
+/// This struct provides methods to process directories and create text-based archives.
+/// It supports both sequential and parallel processing modes.
+///
+/// # Examples
+/// ```
+/// use archive_to_txt::{ArchiveEngine, Config};
+///
+/// let config = Config::default()
+///     .with_input("./src")
+///     .with_output("./archive.txt");
+///
+/// let engine = ArchiveEngine::new(config);
+/// engine.run().expect("Failed to create archive");
+/// ```
 pub struct ArchiveEngine {
+    /// Configuration for the archiving process
     config: Config,
 }
 
 impl ArchiveEngine {
     /// Creates a new `ArchiveEngine` with the given configuration.
+    ///
+    /// # Arguments
+    /// * `config` - Configuration for the archiving process
+    ///
+    /// # Returns
+    /// A new instance of `ArchiveEngine`
+    ///
+    /// # Example
+    /// ```
+    /// use archive_to_txt::{ArchiveEngine, Config};
+    ///
+    /// let config = Config::default();
+    /// let engine = ArchiveEngine::new(config);
+    /// ```
     pub fn new(config: Config) -> Self {
         Self { config }
     }
 
     /// Runs the archiving process.
+    ///
+    /// This method processes all files in the input directory according to the
+    /// configuration and writes the formatted output to the specified file.
+    ///
+    /// # Returns
+    /// `Ok(())` if the operation was successful, or an `ArchiveError` if an error occurred.
+    ///
+    /// # Errors
+    /// Returns an error if:
+    /// - The input directory doesn't exist or isn't accessible
+    /// - The output file can't be created or written to
+    /// - Any file processing fails
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use archive_to_txt::{ArchiveEngine, Config};
+    /// let config = Config::default()
+    ///     .with_input("./src")
+    ///     .with_output("./archive.txt");
+    /// let engine = ArchiveEngine::new(config);
+    /// engine.run().expect("Failed to create archive");
+    /// ```
     pub fn run(&self) -> Result<()> {
         // Create output directory if it doesn't exist
         if let Some(parent) = self.config.output.parent() {
@@ -113,7 +185,28 @@ impl ArchiveEngine {
         Ok(())
     }
     
-    /// Process files in parallel using Rayon
+    /// Process files in parallel using Rayon's work-stealing thread pool.
+    ///
+    /// This method distributes file processing across multiple threads for improved
+    /// performance on multi-core systems. Each file is processed independently and
+    /// results are written to the output in a thread-safe manner.
+    ///
+    /// # Arguments
+    /// * `entries` - List of file paths to process
+    /// * `formatter` - Formatter to use for output generation
+    /// * `writer` - Thread-safe writer for output
+    /// * `file_count` - Atomic counter to track processed files
+    ///
+    /// # Returns
+    /// `Ok(())` if all files were processed successfully, or an error if any file processing fails.
+    ///
+    /// # Errors
+    /// Returns an error if any file processing fails or if writing to the output fails.
+    ///
+    /// # Performance
+    /// - Uses Rayon's work-stealing scheduler for optimal load balancing
+    /// - Minimizes lock contention through buffered writes
+    /// - Processes files in chunks to balance between parallelism and overhead
     fn process_files_parallel(
         &self,
         entries: &[std::path::PathBuf],
@@ -143,7 +236,46 @@ impl ArchiveEngine {
         Ok(())
     }
     
-    /// Process a single file and write to the given writer
+    /// Process a single file and write its formatted content to the given writer.
+    ///
+    /// This method reads the file content, applies formatting using the provided formatter,
+    /// and writes the result to the output writer. It also increments the file counter.
+    ///
+    /// # Arguments
+    /// * `path` - Path to the file to process
+    /// * `formatter` - Formatter to use for the file content
+    /// * `writer` - Mutable reference to the output writer
+    /// * `file_count` - Atomic counter to track the number of processed files
+    ///
+    /// # Returns
+    /// `Ok(())` if the file was processed successfully, or an error if processing failed.
+    ///
+    /// # Errors
+    /// Returns an error if:
+    /// - The file cannot be read
+    /// - The file content cannot be converted to UTF-8
+    /// - Writing to the output fails
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use archive_to_txt::{ArchiveEngine, Config, formatter::TextFormatter};
+    /// # use std::sync::atomic::{AtomicUsize, Ordering};
+    /// # use std::fs::File;
+    /// # use std::io::Write;
+    /// # use std::path::Path;
+    /// #
+    /// let engine = ArchiveEngine::new(Config::default());
+    /// let file_count = AtomicUsize::new(0);
+    /// let mut output = Vec::new();
+    /// let formatter = TextFormatter::new();
+    ///
+    /// engine.process_single_file(
+    ///     Path::new("example.txt"),
+    ///     &formatter,
+    ///     &mut output,
+    ///     &file_count
+    /// ).unwrap();
+    /// ```
     fn process_single_file<W: Write>(
         &self,
         path: &Path,
@@ -160,7 +292,45 @@ impl ArchiveEngine {
         Ok(())
     }
     
-    /// Process a single file into a buffer
+    /// Process a single file and append its formatted content to the provided buffer.
+    ///
+    /// This method is similar to `process_single_file` but writes to a buffer instead of a writer.
+    /// It's particularly useful for parallel processing where you want to collect output
+    /// before writing to a shared resource.
+    ///
+    /// # Arguments
+    /// * `path` - Path to the file to process
+    /// * `formatter` - Formatter to use for the file content
+    /// * `buffer` - Buffer to append the formatted content to
+    /// * `file_count` - Atomic counter to track the number of processed files
+    ///
+    /// # Returns
+    /// `Ok(())` if the file was processed successfully, or an error if processing failed.
+    ///
+    /// # Errors
+    /// Returns an error if:
+    /// - The file cannot be read
+    /// - The file content cannot be converted to UTF-8
+    /// - The buffer cannot be written to
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use archive_to_txt::{ArchiveEngine, Config, formatter::TextFormatter};
+    /// # use std::sync::atomic::{AtomicUsize, Ordering};
+    /// # use std::path::Path;
+    /// #
+    /// let engine = ArchiveEngine::new(Config::default());
+    /// let file_count = AtomicUsize::new(0);
+    /// let mut buffer = Vec::new();
+    /// let formatter = TextFormatter::new();
+    ///
+    /// engine.process_single_file_to_buffer(
+    ///     Path::new("example.txt"),
+    ///     &formatter,
+    ///     &mut buffer,
+    ///     &file_count
+    /// ).unwrap();
+    /// ```
     fn process_single_file_to_buffer(
         &self,
         path: &Path,
@@ -185,7 +355,41 @@ impl ArchiveEngine {
         Ok(())
     }
     
-    /// Format and write a file's content to the writer
+    /// Format a file's content and write it to the provided writer.
+    ///
+    /// This method handles the formatting of file content using the specified formatter
+    /// and writes the result to the output writer. It's a lower-level method used by
+    /// both `process_single_file` and `process_single_file_to_buffer`.
+    ///
+    /// # Arguments
+    /// * `path` - Path to the file being processed (used for metadata in formatting)
+    /// * `content` - The content of the file to format
+    /// * `formatter` - Formatter to use for the content
+    /// * `writer` - Writer to write the formatted output to
+    ///
+    /// # Returns
+    /// `Ok(())` if the content was formatted and written successfully, or an error if writing failed.
+    ///
+    /// # Errors
+    /// Returns an error if writing to the output writer fails.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use archive_to_txt::{ArchiveEngine, Config, formatter::TextFormatter};
+    /// # use std::io::Write;
+    /// # use std::path::Path;
+    /// #
+    /// let engine = ArchiveEngine::new(Config::default());
+    /// let formatter = TextFormatter::new();
+    /// let mut output = Vec::new();
+    ///
+    /// engine.format_and_write(
+    ///     Path::new("example.txt"),
+    ///     "File content",
+    ///     &formatter,
+    ///     &mut output
+    /// ).unwrap();
+    /// ```
     fn format_and_write(
         &self,
         path: &Path,
@@ -209,6 +413,33 @@ impl ArchiveEngine {
 }
 
 /// Archives the given directory to the specified output file.
+///
+/// This is a convenience function that creates a new `ArchiveEngine` and runs it.
+/// For more control over the archiving process, use `ArchiveEngine` directly.
+///
+/// # Arguments
+/// * `input` - The input directory to archive
+/// * `output` - The output file path
+/// * `config` - Configuration for the archiving process
+///
+/// # Returns
+/// `Ok(())` if the operation was successful, or an `ArchiveError` if an error occurred.
+///
+/// # Errors
+/// Returns an error if:
+/// - The input directory doesn't exist or isn't accessible
+/// - The output file can't be created or written to
+/// - Any file processing fails
+///
+/// # Example
+/// ```no_run
+/// use archive_to_txt::{archive_directory, Config};
+///
+/// let config = Config::default()
+///     .with_parallel(true);
+///
+/// archive_directory("./src", "./archive.txt", &config).unwrap();
+/// ```
 pub fn archive_directory(
     input: impl AsRef<Path>,
     output: impl AsRef<Path>,
