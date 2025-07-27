@@ -1132,68 +1132,105 @@ impl CodeArchiver {
         }
 
         let stats = &self.filter_stats;
-        println!("\n📊 File Filtering Statistics:");
-        println!("   Total files found: {}", stats.total_files_found);
-        println!("   Files included: {} 🟢", stats.files_included);
-        println!("   Files excluded: {} 🔴", stats.files_excluded);
+        
+        // Enhanced header with visual separator
+        println!("\n{}", "=".repeat(60));
+        println!("📊 File Filtering Statistics");
+        println!("{}", "=".repeat(60));
+        
+        // Core statistics with better formatting
+        println!("   📁 Total files discovered: {}", stats.total_files_found);
+        println!("   ✅ Files included: {} 🟢", stats.files_included);
+        println!("   ❌ Files excluded: {} 🔴", stats.files_excluded);
 
-        if stats.excluded_by_extension > 0 {
-            println!(
-                "     └─ By extension filter: {}",
-                stats.excluded_by_extension
-            );
-        }
-        if stats.excluded_by_llm_optimization > 0 {
-            println!(
-                "     └─ By LLM optimization: {} 🤖",
-                stats.excluded_by_llm_optimization
-            );
+        // Detailed breakdown with tree-like structure
+        if stats.files_excluded > 0 {
+            println!("   📋 Exclusion breakdown:");
+            
+            if stats.excluded_by_extension > 0 {
+                println!(
+                    "      ├─ Extension filtering: {} files",
+                    stats.excluded_by_extension
+                );
+            }
+            
+            if stats.excluded_by_llm_optimization > 0 {
+                println!(
+                    "      ├─ LLM optimization: {} files 🤖",
+                    stats.excluded_by_llm_optimization
+                );
 
-            // Show LLM optimization benefits
-            if self.llm_optimize {
-                println!("        ✨ LLM optimization excluded:");
-                println!("           • Build artifacts and compiled files");
-                println!("           • Dependencies and package manager files");
-                println!("           • Cache and temporary files");
-                println!("           • IDE and editor configuration");
-                println!("           • Binary media files");
-                println!("           • Environment and secret files");
-                println!("           • Large data files and ML models");
-                println!("        📚 This creates cleaner training data focused on source code");
+                // Show LLM optimization benefits with better formatting
+                if self.llm_optimize {
+                    println!("      │  ✨ LLM optimization excluded:");
+                    println!("      │     • Build artifacts and compiled files");
+                    println!("      │     • Dependencies and package manager files");
+                    println!("      │     • Cache and temporary files");
+                    println!("      │     • IDE and editor configuration");
+                    println!("      │     • Binary media files");
+                    println!("      │     • Environment and secret files");
+                    println!("      │     • Large data files and ML models");
+                    println!("      │  📚 Creates cleaner training data focused on source code");
+                }
+            }
+            
+            if stats.excluded_by_ignore_pattern > 0 {
+                println!(
+                    "      ├─ Custom ignore patterns: {} files",
+                    stats.excluded_by_ignore_pattern
+                );
+            }
+            
+            if stats.excluded_by_git > 0 {
+                println!(
+                    "      └─ Git ignore rules: {} files",
+                    stats.excluded_by_git
+                );
             }
         }
-        if stats.excluded_by_ignore_pattern > 0 {
-            println!(
-                "     └─ By ignore patterns: {}",
-                stats.excluded_by_ignore_pattern
-            );
-        }
-        if stats.excluded_by_git > 0 {
-            println!("     └─ By Git rules: {}", stats.excluded_by_git);
-        }
 
+        // Performance metrics
         let inclusion_rate = if stats.total_files_found > 0 {
             (stats.files_included as f64 / stats.total_files_found as f64) * 100.0
         } else {
             0.0
         };
-        println!("   Inclusion rate: {:.1}% 📈", inclusion_rate);
-
+        
+        println!("\n   📈 Inclusion rate: {:.1}%", inclusion_rate);
+        
         if stats.total_size_included > 0 {
-            println!(
-                "   Total size included: {} bytes 💾",
-                stats.total_size_included
-            );
+            let size_mb = stats.total_size_included as f64 / (1024.0 * 1024.0);
+            if size_mb >= 1.0 {
+                println!("   💾 Total size included: {:.2} MB ({} bytes)", size_mb, stats.total_size_included);
+            } else {
+                let size_kb = stats.total_size_included as f64 / 1024.0;
+                println!("   💾 Total size included: {:.2} KB ({} bytes)", size_kb, stats.total_size_included);
+            }
+        }
+
+        // Efficiency indicator
+        if inclusion_rate < 20.0 && self.llm_optimize {
+            println!("   🎯 High efficiency: Most bloat successfully filtered out");
+        } else if inclusion_rate > 80.0 && !self.llm_optimize {
+            println!("   ⚠️  Low filtering: Consider enabling --llm-optimize for better results");
         }
 
         // Show LLM optimization recommendation
         if !self.llm_optimize && stats.files_excluded > 0 {
-            println!("\n💡 Tip: Use --llm-optimize flag to automatically exclude");
-            println!("   build artifacts, dependencies, and binary files for");
-            println!("   cleaner LLM training data preparation.");
+            println!("\n{}", "─".repeat(60));
+            println!("💡 Optimization Tip:");
+            println!("   Enable LLM optimization with default settings to automatically exclude");
+            println!("   build artifacts, dependencies, and binary files for cleaner training data.");
+            println!("   Usage: ts-compressor archive <folder> (LLM optimization enabled by default)");
+            println!("   Disable: ts-compressor archive <folder> --no-llm-optimize");
         }
 
-        println!();
+        // Success message
+        if stats.files_included > 0 {
+            println!("\n🎉 Archive processing completed successfully!");
+        }
+
+        println!("{}", "=".repeat(60));
     }
 
     /// Create the archive file (Pattern 4.1 - RAII pattern)
@@ -1212,6 +1249,27 @@ impl CodeArchiver {
         // Ensure output directory exists
         fs::create_dir_all(&self.output_dir)?;
 
+        // Show processing start message
+        println!("\n🚀 Starting archive creation...");
+        println!("📁 Target: {}", self.target_folder.display());
+        println!("📄 Output: {}", output_file.display());
+        
+        if self.llm_optimize {
+            println!("🤖 LLM optimization: ENABLED");
+        } else {
+            println!("🤖 LLM optimization: DISABLED");
+        }
+        
+        if let Some(ref extensions) = self.include_extensions {
+            println!("🎯 Extension filter: {}", extensions.join(", "));
+        }
+        
+        if !self.ignore_patterns.is_empty() {
+            println!("📝 Custom patterns: {} rules", self.ignore_patterns.len());
+        }
+        
+        println!("{}", "─".repeat(60));
+
         let mut file = File::create(&output_file)?;
 
         // Write header information
@@ -1226,7 +1284,19 @@ impl CodeArchiver {
         // Display filtering statistics
         self.display_filter_stats();
 
-        println!("Archive created: {:?}", output_file);
+        // Success message with file info
+        let file_size = fs::metadata(&output_file)?.len();
+        let size_mb = file_size as f64 / (1024.0 * 1024.0);
+        
+        println!("✅ Archive successfully created!");
+        println!("📄 File: {}", output_file.display());
+        if size_mb >= 1.0 {
+            println!("📏 Size: {:.2} MB ({} bytes)", size_mb, file_size);
+        } else {
+            let size_kb = file_size as f64 / 1024.0;
+            println!("📏 Size: {:.2} KB ({} bytes)", size_kb, file_size);
+        }
+        
         Ok(())
     }
 

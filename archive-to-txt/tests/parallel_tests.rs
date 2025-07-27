@@ -19,7 +19,7 @@ fn test_parallel_processing() -> Result<(), Box<dyn std::error::Error>> {
         .with_parallel(true);
 
     // Create and run the archive engine
-    let engine = ArchiveEngine::new(config);
+    let mut engine = ArchiveEngine::new(config)?;
     engine.run()?;
 
     // Verify all files were processed

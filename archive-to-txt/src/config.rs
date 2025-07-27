@@ -46,13 +46,16 @@ pub struct Config {
     /// Output verbosity level
     #[serde(default = "default_verbosity")]
     pub verbosity: u8,
+    /// Include directory tree structure in output
+    #[serde(default)]
+    pub include_tree: bool,
 }
 
 /// Output format for the archive
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub enum OutputFormat {
     /// Plain text format
-    Text,
+    Plain,
     /// JSON format
     Json,
     /// Markdown format
@@ -62,7 +65,7 @@ pub enum OutputFormat {
 }
 
 fn default_format() -> OutputFormat {
-    OutputFormat::Text
+    OutputFormat::Plain
 }
 
 fn default_verbosity() -> u8 {
@@ -87,7 +90,7 @@ impl Default for Config {
             max_file_size: Some(10 * 1024 * 1024), // 10MB default max size
             parallel: true,
             git_info: true,
-            format: OutputFormat::Text,
+            format: OutputFormat::Plain,
             include: None,
             exclude: None,
             llm_optimize: true,
@@ -96,6 +99,7 @@ impl Default for Config {
             max_depth: None,
             follow_links: false,
             verbosity: 1,
+            include_tree: true,
         }
     }
 }
@@ -210,19 +214,143 @@ impl Config {
         self
     }
 
-    /// Get the default LLM ignore patterns
+    /// Set whether to include directory tree structure in output
+    pub fn with_include_tree(mut self, include_tree: bool) -> Self {
+        self.include_tree = include_tree;
+        self
+    }
+
+    /// Get comprehensive LLM ignore patterns for cleaner training data
+    ///
+    /// This method returns a comprehensive list of file patterns that should be
+    /// excluded when preparing code for LLM training. The patterns are based on
+    /// best practices from the AI/ML community and cover:
+    ///
+    /// - Build artifacts and compiled outputs
+    /// - Dependencies and package manager files
+    /// - Cache and temporary files
+    /// - IDE and editor configuration files
+    /// - OS-generated files
+    /// - Version control metadata
+    /// - Logs and databases
+    /// - Environment and secret files
+    /// - Binary media files
+    /// - Archives and compressed files
+    /// - Test coverage reports
+    /// - Language-specific compiled files
+    /// - Cloud and deployment configurations
+    /// - Mobile development artifacts
+    /// - Game development assets
+    /// - Large data files and ML models
+    ///
+    /// These exclusions help create cleaner, more focused training datasets
+    /// that contain primarily source code and documentation rather than
+    /// generated artifacts or binary files.
     pub fn get_default_llm_ignore_patterns() -> Vec<&'static str> {
         vec![
-            // Build artifacts
-            "**/target/", "**/build/", "**/dist/", "**/node_modules/", "**/__pycache__/",
-            // Version control
-            "**/.git/", "**/.svn/", "**/.hg/",
+            // Build artifacts and outputs
+            "**/target/", "**/build/", "**/dist/", "**/out/", "**/bin/", "**/obj/", "**/output/", "**/release/", "**/debug/",
+            "**/*.exe", "**/*.dll", "**/*.so", "**/*.dylib", "**/*.a", "**/*.lib", "**/*.pdb", "**/*.ilk", "**/*.exp", "**/*.map",
+            
+            // Dependencies and package managers
+            "**/node_modules/", "**/vendor/", "**/deps/", "**/packages/", "**/bower_components/", "**/.pnp/", "**/.yarn/",
+            "**/venv/", "**/env/", "**/.venv/", "**/.env/", "**/virtualenv/", "**/site-packages/",
+            "**/pip-log.txt", "**/pip-delete-this-directory.txt",
+            
+            // Cache and temporary files
+            "**/.cache/", "**/tmp/", "**/temp/", "**/.tmp/", "**/.temp/",
+            "**/*.tmp", "**/*.temp", "**/*.swp", "**/*.swo", "**/*~", "**/*.bak", "**/*.backup", "**/*.orig", "**/*.rej",
+            "**/.#*", "**/#*#",
+            
+            // IDE and editor files
+            "**/.vscode/", "**/.idea/", "**/*.iml", "**/.project", "**/.classpath", "**/.settings/",
+            "**/*.sublime-*", "**/.vs/", "**/.vscode-test/", "**/*.code-workspace", "**/.history/", "**/.ionide/",
+            "**/*.iws", "**/.metadata/", "**/.recommenders/",
+            
             // OS generated files
-            "**/.DS_Store", "**/Thumbs.db",
-            // Editor files
-            "**/*.swp", "**/*.swo", "**/*.swn", "**/*.swo", "**/*.swn",
+            "**/.DS_Store", "**/.DS_Store?", "**/._*", "**/.Spotlight-V100", "**/.Trashes",
+            "**/ehthumbs.db", "**/Thumbs.db", "**/desktop.ini", "**/*.lnk", "**/$RECYCLE.BIN/",
+            
+            // Version control (beyond .git)
+            "**/.git/", "**/.hg/", "**/.svn/", "**/.bzr/", "**/.fossil-settings/",
+            
             // Logs and databases
-            "**/*.log", "**/*.sqlite", "**/*.db",
+            "**/*.log", "**/*.db", "**/*.sqlite", "**/*.sqlite3", "**/logs/", "**/log/",
+            "**/*.ldf", "**/*.mdf", "**/*.ndf",
+            
+            // Environment and configuration files (may contain secrets)
+            "**/.env", "**/.env.local", "**/.env.development", "**/.env.test", "**/.env.production", "**/.env.staging",
+            "**/*.env", "**/config.json", "**/secrets.json", "**/*.key", "**/*.pem", "**/*.crt", "**/*.cer",
+            "**/*.p12", "**/*.pfx", "**/*.jks", "**/*.keystore",
+            
+            // Documentation that's not code
+            "**/*.pdf", "**/*.doc", "**/*.docx", "**/*.ppt", "**/*.pptx", "**/*.xls", "**/*.xlsx",
+            "**/*.odt", "**/*.ods", "**/*.odp", "**/*.rtf", "**/*.pages", "**/*.numbers", "**/*.keynote",
+            
+            // Media files
+            "**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.gif", "**/*.bmp", "**/*.ico", "**/*.tiff", "**/*.tif",
+            "**/*.webp", "**/*.svg", "**/*.eps", "**/*.ai", "**/*.psd", "**/*.sketch", "**/*.fig",
+            "**/*.mp4", "**/*.avi", "**/*.mkv", "**/*.mov", "**/*.wmv", "**/*.flv", "**/*.webm",
+            "**/*.m4v", "**/*.3gp", "**/*.ogv", "**/*.mp3", "**/*.wav", "**/*.flac", "**/*.aac",
+            "**/*.ogg", "**/*.wma", "**/*.m4a", "**/*.opus",
+            
+            // Archives
+            "**/*.zip", "**/*.tar", "**/*.tar.gz", "**/*.tgz", "**/*.rar", "**/*.7z", "**/*.bz2",
+            "**/*.xz", "**/*.lzma", "**/*.gz", "**/*.Z", "**/*.deb", "**/*.rpm", "**/*.msi",
+            "**/*.dmg", "**/*.pkg", "**/*.app",
+            
+            // Test coverage and reports
+            "**/coverage/", "**/test-results/", "**/htmlcov/", "**/.nyc_output/", "**/.coverage",
+            "**/*.cover", "**/*.py,cover", "**/.hypothesis/", "**/.pytest_cache/", "**/nosetests.xml",
+            "**/coverage.xml", "**/*.lcov", "**/lcov.info",
+            
+            // Language-specific compiled/generated files
+            "**/*.pyc", "**/*.pyo", "**/*.pyd", "**/__pycache__/", "**/*.class", "**/*.jar",
+            "**/*.war", "**/*.ear", "**/*.nar", "**/*.o", "**/*.obj", "**/*.hi", "**/*.dyn_hi",
+            "**/*.dyn_o", "**/*.beam", "**/*.native", "**/*.byte", "**/*.cmi", "**/*.cmo",
+            "**/*.cmx", "**/*.cmxa", "**/*.cma", "**/*.cmxs",
+            
+            // Language-specific build directories
+            "**/.stack-work/", "**/.cabal-sandbox/", "**/cabal.sandbox.config", "**/dist-newstyle/",
+            "**/.gradle/", "**/gradlew", "**/gradlew.bat", "**/cmake-build-*/", "**/CMakeFiles/",
+            "**/CMakeCache.txt", "**/cmake_install.cmake", "**/install_manifest.txt", "**/Makefile",
+            
+            // Lock files (usually generated)
+            "**/package-lock.json", "**/yarn.lock", "**/pnpm-lock.yaml", "**/Cargo.lock",
+            "**/Pipfile.lock", "**/composer.lock", "**/Gemfile.lock", "**/poetry.lock",
+            "**/mix.lock", "**/pubspec.lock", "**/stack.yaml.lock", "**/flake.lock",
+            
+            // Cloud and deployment
+            "**/.terraform/", "**/*.tfstate", "**/*.tfstate.*", "**/*.tfplan", "**/*.tfvars",
+            "**/.pulumi/", "**/.serverless/", "**/.vercel/", "**/.netlify/", "**/.next/",
+            "**/.nuxt/", "**/.output/", "**/.firebase/", "**/.gcloud/", "**/.aws/", "**/cdk.out/",
+            
+            // Docker
+            "**/.dockerignore", "**/Dockerfile.*", "**/.docker/",
+            
+            // Mobile development
+            "**/*.ipa", "**/*.apk", "**/*.aab", "**/*.dSYM/", "**/*.xcarchive/", "**/*.xcworkspace/",
+            "**/*.xcodeproj/", "**/DerivedData/", "**/*.hmap", "**/*.xcuserstate", "**/project.xcworkspace",
+            "**/xcuserdata/",
+            
+            // Unity
+            "**/[Ll]ibrary/", "**/[Tt]emp/", "**/[Oo]bj/", "**/[Bb]uild/", "**/[Bb]uilds/",
+            "**/[Ll]ogs/", "**/[Mm]emoryCaptures/", "**/[Uu]serSettings/", "**/*.user", "**/*.userprefs",
+            "**/*.pidb", "**/*.booproj", "**/*.svd", "**/*.mdb", "**/*.opendb", "**/*.VC.db",
+            
+            // Game development
+            "**/*.blend1", "**/*.blend2", "**/*.fbx", "**/*.max", "**/*.maya", "**/*.mb", "**/*.ma",
+            "**/*.3ds", "**/*.dae", "**/*.mtl", "**/*.dds", "**/*.tga", "**/*.exr", "**/*.hdr",
+            
+            // Fonts
+            "**/*.ttf", "**/*.otf", "**/*.woff", "**/*.woff2", "**/*.eot",
+            
+            // Data files that are typically large/binary
+            "**/*.csv", "**/*.tsv", "**/*.parquet", "**/*.h5", "**/*.hdf5", "**/*.nc", "**/*.mat",
+            "**/*.npz", "**/*.npy", "**/*.pickle", "**/*.pkl", "**/*.joblib", "**/*.model",
+            "**/*.weights", "**/*.pt", "**/*.pth", "**/*.ckpt", "**/*.pb", "**/*.tflite",
+            "**/*.onnx", "**/*.mlmodel", "**/*.coreml", "**/datasets/", "**/data/",
+            "**/*.bin", "**/*.dat", "**/*.raw",
         ]
     }
 

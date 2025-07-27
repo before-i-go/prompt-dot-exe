@@ -219,31 +219,235 @@ pub fn split_file(config: &SplitConfig) -> Result<SplitResult> {
 mod tests {
     use super::*;
     use tempfile::tempdir;
-    use std::fs::File;
+    use std::fs::{self, File};
     use std::io::Write;
-    
+    use std::path::Path;
+
+    // Helper function to create a test file with specified content
+    fn create_test_file(dir: &Path, name: &str, content: &[u8]) -> std::io::Result<std::path::PathBuf> {
+        let path = dir.join(name);
+        let mut file = File::create(&path)?;
+        file.write_all(content)?;
+        Ok(path)
+    }
+
+    // Helper function to count files in directory with given prefix
+    fn count_files_with_prefix(dir: &Path, prefix: &str) -> std::io::Result<usize> {
+        let count = fs::read_dir(dir)?
+            .filter_map(|res| res.ok())
+            .filter(|entry| {
+                entry.file_name()
+                    .to_str()
+                    .map(|s| s.starts_with(prefix))
+                    .unwrap_or(false)
+            })
+            .count();
+        Ok(count)
+    }
+
     #[test]
     fn test_split_config_default() {
         let config = SplitConfig::default();
         assert_eq!(config.input_path, "");
-        assert_eq!(config.chunk_size, 1024 * 1024);
+        assert_eq!(config.chunk_size, 1024 * 1024); // 1MB default
         assert_eq!(config.digits, 3);
+        assert!(config.output_dir.is_none());
+        assert!(config.prefix.is_none());
     }
-    
+
+    // Test splitting a file into chunks of specified size
     #[test]
-    fn test_split_file_invalid_chunk_size() {
+    fn test_split_file_into_chunks() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "test.txt", b"1234567890")?;
+        
         let config = SplitConfig {
-            input_path: "test.txt".to_string(),
-            chunk_size: 0,
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 3, // Split into chunks of 3 bytes
+            ..Default::default()
+        };
+
+        let result = split_file(&config)?;
+        
+        assert_eq!(result.total_chunks, 4); // 10 bytes / 3 bytes per chunk = 4 chunks
+        assert_eq!(result.chunks[0].size, 3);
+        assert_eq!(result.chunks[1].size, 3);
+        assert_eq!(result.chunks[2].size, 3);
+        assert_eq!(result.chunks[3].size, 1); // Last chunk has remaining 1 byte
+        
+        Ok(())
+    }
+
+    // Test default chunk size (1MB)
+    #[test]
+    fn test_default_chunk_size() -> Result<()> {
+        let temp_dir = tempdir()?;
+        // Create a file slightly larger than 1MB
+        let content = vec![b'x'; 1024 * 1024 + 100];
+        let input_path = create_test_file(temp_dir.path(), "large.txt", &content)?;
+        
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            ..Default::default()
+        };
+
+        let result = split_file(&config)?;
+        assert_eq!(result.total_chunks, 2); // Should be split into 2 chunks
+        assert_eq!(result.chunks[0].size, 1024 * 1024); // First chunk is exactly 1MB
+        assert_eq!(result.chunks[1].size, 100); // Second chunk has remaining 100 bytes
+        
+        Ok(())
+    }
+
+    // Test custom chunk sizes with different units
+    #[test]
+    fn test_custom_chunk_sizes() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "test_units.txt", &[b'x'; 3000])?;
+        
+        // Test with 1K chunks
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 1024, // 1K
+            ..Default::default()
+        };
+        let result = split_file(&config)?;
+        assert_eq!(result.total_chunks, 3); // 3000 / 1024 = 3 chunks
+        
+        Ok(())
+    }
+
+    // Test handling of empty input files
+    #[test]
+    fn test_empty_input_file() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "empty.txt", b"")?;
+        
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 1024,
             ..Default::default()
         };
         
         let result = split_file(&config);
-        assert!(matches!(result, Err(SplitError::InvalidChunkSize(_))));
+        assert!(matches!(result, Err(SplitError::InvalidInputPath(_))));
+        
+        Ok(())
     }
-    
+
+    // Test default output directory (same as input file)
     #[test]
-    fn test_split_file_nonexistent_input() {
+    fn test_default_output_directory() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "test_default_dir.txt", b"test")?;
+        
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 2,
+            output_dir: None, // Should default to input file's directory
+            ..Default::default()
+        };
+        
+        let result = split_file(&config)?;
+        assert_eq!(result.output_dir, input_path.parent().unwrap().canonicalize()?);
+        
+        Ok(())
+    }
+
+    // Test custom output directory
+    #[test]
+    fn test_custom_output_directory() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "test_custom_dir.txt", b"test")?;
+        let output_dir = temp_dir.path().join("custom_output");
+        
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 2,
+            output_dir: Some(output_dir.to_str().unwrap().to_string()),
+            ..Default::default()
+        };
+        
+        let result = split_file(&config)?;
+        assert_eq!(result.output_dir, output_dir.canonicalize()?);
+        
+        Ok(())
+    }
+
+    // Test default filename prefix (input filename stem)
+    #[test]
+    fn test_default_filename_prefix() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "test_prefix.txt", b"test")?;
+        
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 2,
+            prefix: None, // Should default to input filename stem
+            ..Default::default()
+        };
+        
+        let result = split_file(&config)?;
+        assert!(result.chunks[0].path.file_name().unwrap().to_str().unwrap().starts_with("test_prefix."));
+        
+        Ok(())
+    }
+
+    // Test custom filename prefix
+    #[test]
+    fn test_custom_filename_prefix() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "test_custom_prefix.txt", b"test")?;
+        
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 2,
+            prefix: Some("custom_".to_string()),
+            ..Default::default()
+        };
+        
+        let result = split_file(&config)?;
+        assert!(result.chunks[0].path.file_name().unwrap().to_str().unwrap().starts_with("custom_"));
+        
+        Ok(())
+    }
+
+    // Test number padding with different digit counts
+    #[test]
+    fn test_number_padding() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "test_padding.txt", &[b'x'; 30])?;
+        
+        // Test with 2 digits
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 10, // Will create 3 chunks
+            digits: 2,
+            ..Default::default()
+        };
+        
+        let result = split_file(&config)?;
+        let chunk_name = result.chunks[0].path.file_name().unwrap().to_str().unwrap();
+        assert!(chunk_name.ends_with(".01"));
+        
+        // Test with 4 digits
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 10, // Will create 3 chunks
+            digits: 4,
+            ..Default::default()
+        };
+        
+        let result = split_file(&config)?;
+        let chunk_name = result.chunks[0].path.file_name().unwrap().to_str().unwrap();
+        assert!(chunk_name.ends_with(".0001"));
+        
+        Ok(())
+    }
+
+    // Test handling of non-existent input file
+    #[test]
+    fn test_nonexistent_input_file() {
         let config = SplitConfig {
             input_path: "nonexistent_file.txt".to_string(),
             chunk_size: 1024,
@@ -253,31 +457,56 @@ mod tests {
         let result = split_file(&config);
         assert!(matches!(result, Err(SplitError::InvalidInputPath(_))));
     }
-    
+
+    // Test handling of invalid chunk size (zero)
     #[test]
-    fn test_split_file_with_output_dir() -> Result<()> {
-        // Create a temporary directory for testing
-        let temp_dir = tempdir()?;
-        let input_path = temp_dir.path().join("test.txt");
-        let output_dir = temp_dir.path().join("output");
-        
-        // Create a test file
-        let mut file = File::create(&input_path)?;
-        file.write_all(b"This is a test file")?;
-        
-        // Test with output directory
+    fn test_zero_chunk_size() {
         let config = SplitConfig {
-            input_path: input_path.to_str().unwrap().to_string(),
-            output_dir: Some(output_dir.to_str().unwrap().to_string()),
-            chunk_size: 10, // Small chunk size for testing
+            input_path: "test.txt".to_string(),
+            chunk_size: 0,
             ..Default::default()
         };
         
-        split_file(&config)?;
+        let result = split_file(&config);
+        assert!(matches!(result, Err(SplitError::InvalidChunkSize(_))));
+    }
+
+    // Test handling of invalid output directory (no write permission)
+    #[test]
+    fn test_invalid_output_directory() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "test_permission.txt", b"test")?;
         
-        // Verify output directory was created
-        assert!(output_dir.exists());
-        assert!(output_dir.is_dir());
+        // On Unix-like systems, we can test write permissions
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            
+            // Create a directory without write permissions
+            let no_write_dir = temp_dir.path().join("no_write");
+            std::fs::create_dir(&no_write_dir)?;
+            let mut perms = std::fs::metadata(&no_write_dir)?.permissions();
+            perms.set_readonly(true);
+            std::fs::set_permissions(&no_write_dir, perms)?;
+            
+            let config = SplitConfig {
+                input_path: input_path.to_str().unwrap().to_string(),
+                output_dir: Some(no_write_dir.to_str().unwrap().to_string()),
+                chunk_size: 2,
+                ..Default::default()
+            };
+            
+            let result = split_file(&config);
+            // The function might return either InvalidOutputDir or Io error
+            assert!(matches!(
+                result,
+                Err(SplitError::InvalidOutputDir(_)) | Err(SplitError::Io(_))
+            ));
+        }
+        
+        // On non-Unix systems, skip the test
+        #[cfg(not(unix))]
+        println!("Skipping write permission test on non-Unix system");
         
         Ok(())
     }

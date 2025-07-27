@@ -1,7 +1,5 @@
 use std::path::{Path, PathBuf};
-use std::fmt;
 use thiserror::Error;
-use std::error::Error as StdError;
 
 /// Main error type for the archive-to-txt library
 /// 
@@ -74,15 +72,15 @@ pub enum ArchiveError {
 
     /// Multiple errors occurred
     #[error("Multiple errors occurred:
-{errors}")]
+{}", format_multiple_errors(&errors))]
     Multiple {
         /// List of errors that occurred
         errors: Vec<ArchiveError>,
     },
 
     /// Other kinds of errors
-    #[error(transparent)]
-    Other(#[from] anyhow::Error),
+    #[error("{0}")]
+    Other(String),
 }
 
 /// A specialized `Result` type for archive operations
@@ -157,7 +155,7 @@ impl From<glob::PatternError> for ArchiveError {
 impl From<glob::GlobError> for ArchiveError {
     fn from(err: glob::GlobError) -> Self {
         ArchiveError::InvalidPath {
-            path: err.path().unwrap_or_else(|| Path::new("")).to_path_buf(),
+            path: err.path().to_path_buf(),
             reason: err.error().to_string(),
         }
     }
@@ -167,7 +165,7 @@ impl From<glob::GlobError> for ArchiveError {
 impl From<anyhow::Error> for ArchiveError {
     fn from(err: anyhow::Error) -> Self {
         if let Some(io_err) = err.downcast_ref::<std::io::Error>() {
-            return ArchiveError::io_error(io_err.clone(), "I/O operation failed");
+            return ArchiveError::io_error(std::io::Error::new(io_err.kind(), io_err.to_string()), "I/O operation failed");
         }
         ArchiveError::Other(err.to_string())
     }

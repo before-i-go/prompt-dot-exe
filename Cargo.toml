@@ -4,8 +4,9 @@ members = [
     "code-archiver",
     "file-splitter",
     "common",
-    "ts-compressor"
-, "archive-to-txt"]
+    "ts-compressor",
+    "archive-to-txt"
+]
 
 [workspace.dependencies]
 anyhow = "1.0"

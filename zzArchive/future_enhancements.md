@@ -1,4 +1,53 @@
-# Future Enhancements and Technical Details
+# File-Splitter Future Enhancements
+
+## Non-MVP Features
+
+### Advanced Features
+- [ ] Support for progress reporting
+- [ ] Support for checksum verification
+- [ ] Support for resuming interrupted operations
+- [ ] Support for custom delimiters (e.g., split at line endings)
+- [ ] Support for merging chunks back together
+- [ ] Support for compression of output chunks
+
+### Advanced Test Cases
+- [ ] Test with very large files (>4GB)
+- [ ] Test with very small chunk sizes (1 byte)
+- [ ] Test with very large chunk sizes (>4GB)
+- [ ] Test with special characters in filenames
+- [ ] Test with very long filenames
+- [ ] Test with different file permissions
+- [ ] Test with different file types (binary, text, etc.)
+- [ ] Test with files that have different line endings (CRLF vs LF)
+- [ ] Test with files that have different encodings (UTF-8, UTF-16, etc.)
+- [ ] Test with symlinks as input
+- [ ] Test with hardlinks as input
+- [ ] Test handling of existing output files (overwrite behavior)
+- [ ] Test handling of insufficient permissions in output directory
+- [ ] Test handling of read-only input file
+- [ ] Test handling of filesystem full condition
+
+### Performance Testing
+- [ ] Benchmark with different file sizes
+- [ ] Benchmark with different chunk sizes
+- [ ] Test memory usage with large files
+- [ ] Test CPU usage during splitting
+
+### Advanced Testing
+- [ ] Property-based tests for edge cases
+- [ ] Fuzz testing for security
+- [ ] Performance benchmarks
+
+### Documentation Enhancements
+- [ ] User documentation (man page)
+- [ ] API documentation (cargo doc)
+- [ ] Examples in documentation
+- [ ] Error message documentation
+
+### Code Quality
+- [ ] Clippy lint checks passing
+- [ ] Rustfmt formatting applied
+- [ ] Documentation coverage
 
 ## Implementation Details
 

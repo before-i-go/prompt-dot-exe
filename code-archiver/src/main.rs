@@ -20,7 +20,7 @@ struct Args {
     exclude: Vec<String>,
     
     /// File extensions to include (without leading .)
-    #[arg(short = 'e', long)]
+    #[arg(long)]
     extensions: Vec<String>,
     
     /// Maximum file size in bytes
