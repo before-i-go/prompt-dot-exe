@@ -18,69 +18,159 @@ A high-performance Rust library and CLI tool for creating text-based archives of
 
 ## Quick Start
 
-### Installation
+#### Installation and Running
 
-#### From Crates.io
-```bash
-cargo install archive-to-txt
-```
-
-#### From Source
+##### Clone and Run (Recommended)
 ```bash
 git clone https://github.com/yourusername/archive-to-txt.git
 cd archive-to-txt
-cargo install --path .
+
+# Run directly with cargo
+cargo run -p archive-to-txt --release -- --input ./path/to/src
 ```
 
-#### As a Library
+##### As a Library
 Add to your `Cargo.toml`:
 ```toml
 [dependencies]
-archive-to-txt = "1.0.0"
+archive-to-txt = { path = "./archive-to-txt" }  # Local path to the crate
 ```
 
 ### Basic Usage
 ```bash
-# Create archive of a directory
-archive-to-txt --input ./src --output archive.txt
+# From the workspace root
+cd /path/to/archive-to-txt
+
+# Create archive of a directory (auto-named with timestamp)
+cargo run -p archive-to-txt --release -- --input ./src
+
+# Specify a custom output path
+cargo run -p archive-to-txt --release -- --input ./src --output ./archive.txt
 
 # See all options
-archive-to-txt --help
+cargo run -p archive-to-txt --release -- --help
 ```
 
-### Quick Run (Without Installation)
+### Strapi Project Example
 
-Run directly using Cargo without installing. There are two ways to run the tool:
+Here's how to use archive-to-txt with a Strapi project:
 
-#### Option 1: From the workspace root (recommended)
+#### Basic Archive (Auto-named with timestamp)
 ```bash
-# Navigate to the workspace root if you're not already there
-cd /home/amuldotexe/Desktop/GitHub202410/interview-irodov
+# From the workspace root
+cargo run -p archive-to-txt --release -- \
+  --input ./path/to/your/strapi/project
 
-# Basic usage with the strapi project
-cargo run -p archive-to-txt --release -- --input /home/amuldotexe/Desktop/GitHub202410/ab202507/strapi --output /home/amuldotexe/Desktop/GitHub202410/ab202507/strapi_archive.txt
-
-# With additional options (exclude hidden files, limit file size)
-cargo run -p archive-to-txt --release -- --input /home/amuldotexe/Desktop/GitHub202410/ab202507/strapi --output /home/amuldotexe/Desktop/GitHub202410/ab202507/strapi_filtered.txt --exclude-hidden --max-file-size 2MB
-
-# Process with debug output (shows detailed processing information
-RUST_LOG=debug cargo run -p archive-to-txt --release -- --input /home/amuldotexe/Desktop/GitHub202410/ab202507/strapi --output /home/amuldotexe/Desktop/GitHub202410/ab202507/debug_strapi_archive.txt
+# Creates: ./path/to/your/strapi/your-project_archive_20250727_143000.txt
 ```
 
-#### Option 2: From the archive-to-txt directory
+#### Specify Output Directory
+```bash
+cargo run -p archive-to-txt --release -- \
+  --input ./path/to/your/strapi/project \
+  --output /output/path/
+
+# Creates: /output/path/your-project_archive_20250727_143000.txt
+```
+
+#### Advanced Usage with Filters
+```bash
+cargo run -p archive-to-txt --release -- \
+  --input ./path/to/your/strapi/project \
+  --include "*.js,*.jsx,*.ts,*.tsx,*.json" \
+  --exclude "node_modules/**,build/**,.git/**" \
+  --max-file-size 5MB
+```
+
+#### Custom Output Filename
+```bash
+cargo run -p archive-to-txt --release -- \
+  --input ./path/to/your/strapi/project \
+  --output ./custom_archive.txt \
+  --include "*.js,*.jsx,*.ts,*.tsx,*.json"
+```
+
+#### Quick Run (Without Installation)
+
+Run directly using Cargo without installing:
+
+```bash
+# From the workspace root
+cargo run -p archive-to-txt --release -- \
+  --input /path/to/your/strapi/project \
+  --output strapi_archive.txt \
+  --exclude-hidden \
+  --max-file-size 5MB
+
+# With debug output
+RUST_LOG=debug cargo run -p archive-to-txt --release -- \
+  --input /path/to/your/strapi/project \
+  --output debug_strapi_archive.txt
+```
+
+#### Example Output
+```
+=== File: /config/database.js ===
+module.exports = ({ env }) => ({
+  connection: {
+    client: 'postgres',
+    connection: {
+      host: env('DATABASE_HOST', 'localhost'),
+      port: env.int('DATABASE_PORT', 5432),
+      // ... more config
+    },
+  },
+});
+
+=== File: /src/api/restaurant/controllers/restaurant.js ===
+'use strict';
+
+/**
+ * restaurant controller
+ */
+
+const { createCoreController } = require('@strapi/strapi').factories;
+
+module.exports = createCoreController('api::restaurant.restaurant');
+```
+
+### Running the Tool
+
+#### From the Workspace Root (Recommended)
+```bash
+# Navigate to the workspace root
+cd /path/to/interview-irodov
+
+# Basic usage with Strapi project
+cargo run -p archive-to-txt --release -- \
+  --input /path/to/your/strapi/project \
+  --output /path/to/output/strapi_archive.txt
+
+# With additional options
+cargo run -p archive-to-txt --release -- \
+  --input /path/to/your/strapi/project \
+  --output /path/to/output/strapi_filtered.txt \
+  --exclude-hidden \
+  --max-file-size 2MB
+
+# With debug output
+RUST_LOG=debug cargo run -p archive-to-txt --release -- \
+  --input /path/to/your/strapi/project \
+  --output /path/to/output/debug_strapi_archive.txt
+```
+
+#### From the archive-to-txt Directory
 ```bash
 # Navigate to the archive-to-txt directory
-cd /home/amuldotexe/Desktop/GitHub202410/interview-irodov/archive-to-txt
+cd /path/to/interview-irodov/archive-to-txt
 
-# Run in debug mode (faster build, slower execution)
-# Output will be saved as 'debug_output.txt' in the current directory
-cargo run --release -- --input /home/amuldotexe/Desktop/GitHub202410/ab202507/strapi --output debug_output.txt
-
-# To save in a specific directory, use an absolute or relative path:
-cargo run --release -- --input /home/amuldotexe/Desktop/GitHub202410/ab202507/strapi --output /path/to/save/archive.txt
+# Run in release mode
+cargo run --release -- \
+  --input /path/to/your/strapi/project \
+  --output debug_output.txt
 ```
 
-> **Note:** The `-p archive-to-txt` flag specifies which package to run from the workspace. This is required when running from the workspace root.
+> **Note:** When running from the workspace root, use `-p archive-to-txt` to specify the package. This is not needed when running from the package directory.
 
 ## 📦 Project Structure
 
@@ -132,23 +222,23 @@ Dual-licensed under:
 
 ```bash
 # Basic usage
-archive-to-txt --input ./src --output archive.txt
+cargo run -p archive-to-txt --release -- --input ./src --output archive.txt
 
 # Show all available options
-archive-to-txt --help
+cargo run -p archive-to-txt --release -- --help
 
 # Common options:
 # - Exclude hidden files and directories
-archive-to-txt --input . --output archive.txt --exclude-hidden
+cargo run -p archive-to-txt --release -- --input . --output archive.txt --exclude-hidden
 
 # - Set maximum file size (supports KB, MB, GB)
-archive-to-txt --input . --output archive.txt --max-file-size 5MB
+cargo run -p archive-to-txt --release -- --input . --output archive.txt --max-file-size 5MB
 
 # - Disable parallel processing (useful for debugging)
-archive-to-txt --input . --output archive.txt --no-parallel
+cargo run -p archive-to-txt --release -- --input . --output archive.txt --no-parallel
 
 # - Include gitignored files
-archive-to-txt --input . --output all-files.txt --include-gitignored
+cargo run -p archive-to-txt --release -- --input . --output all-files.txt --include-gitignored
 ```
 
 ### Configuration File
