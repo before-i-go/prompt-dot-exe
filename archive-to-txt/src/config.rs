@@ -248,112 +248,251 @@ impl Config {
     /// generated artifacts or binary files.
     pub fn get_default_llm_ignore_patterns() -> Vec<&'static str> {
         vec![
-            // Build artifacts and outputs
-            "**/target/", "**/build/", "**/dist/", "**/out/", "**/bin/", "**/obj/", "**/output/", "**/release/", "**/debug/",
-            "**/*.exe", "**/*.dll", "**/*.so", "**/*.dylib", "**/*.a", "**/*.lib", "**/*.pdb", "**/*.ilk", "**/*.exp", "**/*.map",
-            
-            // Dependencies and package managers
-            "**/node_modules/", "**/vendor/", "**/deps/", "**/packages/", "**/bower_components/", "**/.pnp/", "**/.yarn/",
-            "**/venv/", "**/env/", "**/.venv/", "**/.env/", "**/virtualenv/", "**/site-packages/",
-            "**/pip-log.txt", "**/pip-delete-this-directory.txt",
-            
-            // Cache and temporary files
-            "**/.cache/", "**/tmp/", "**/temp/", "**/.tmp/", "**/.temp/",
-            "**/*.tmp", "**/*.temp", "**/*.swp", "**/*.swo", "**/*~", "**/*.bak", "**/*.backup", "**/*.orig", "**/*.rej",
-            "**/.#*", "**/#*#",
-            
+            // Version control
+            "**/.git/", "**/.svn/", "**/.hg/", "**/.gitignore", "**/.gitmodules", "**/.gitattributes",
+    
+            // Build artifacts
+            "**/target/", "**/build/", "**/dist/", "**/node_modules/", "**/__pycache__/",
+            "**/*.pyc", "**/*.pyo", "**/*.pyd", "**/*.so", "**/*.dll", "**/*.dylib",
+            "**/*.a", "**/*.lib", "**/*.o", "**/*.obj", "**/*.class", "**/*.jar", "**/*.war",
+    
+            // Package managers and dependencies
+            "**/package-lock.json", "**/yarn.lock", "**/Cargo.lock", "**/Gemfile.lock",
+            "**/Pipfile.lock", "**/poetry.lock", "**/yarn-error.log", "**/requirements*.txt",
+            "**/requirements/*.txt", "**/constraints.txt", "**/setup.cfg", "**/setup.py",
+    
+            // Environment and configuration
+            "**/.env", "**/.env.*", "**/.venv/", "**/venv/", "**/env/", "**/ENV/",
+            "**/env.bak/", "**/venv.bak/", "**/.python-version", "**/.ruby-version",
+            "**/.node-version", "**/.nvmrc", "**/.editorconfig", "**/.prettierrc",
+            "**/.eslintrc*", "**/.babelrc*", "**/tsconfig.json", "**/jsconfig.json",
+    
             // IDE and editor files
-            "**/.vscode/", "**/.idea/", "**/*.iml", "**/.project", "**/.classpath", "**/.settings/",
-            "**/*.sublime-*", "**/.vs/", "**/.vscode-test/", "**/*.code-workspace", "**/.history/", "**/.ionide/",
-            "**/*.iws", "**/.metadata/", "**/.recommenders/",
-            
-            // OS generated files
-            "**/.DS_Store", "**/.DS_Store?", "**/._*", "**/.Spotlight-V100", "**/.Trashes",
-            "**/ehthumbs.db", "**/Thumbs.db", "**/desktop.ini", "**/*.lnk", "**/$RECYCLE.BIN/",
-            
-            // Version control (beyond .git)
-            "**/.git/", "**/.hg/", "**/.svn/", "**/.bzr/", "**/.fossil-settings/",
-            
+            "**/.idea/", "**/.vscode/", "**/*.swp", "**/*.swo", "**/*.swn",
+            "**/.DS_Store", "**/Thumbs.db", "**/.vs/", "**/*.sublime-*", "**/.history/",
+            "**/.vscode-test/", "**/.vscode/extensions.json", "**/.vscode/settings.json",
+    
             // Logs and databases
-            "**/*.log", "**/*.db", "**/*.sqlite", "**/*.sqlite3", "**/logs/", "**/log/",
-            "**/*.ldf", "**/*.mdf", "**/*.ndf",
-            
-            // Environment and configuration files (may contain secrets)
-            "**/.env", "**/.env.local", "**/.env.development", "**/.env.test", "**/.env.production", "**/.env.staging",
-            "**/*.env", "**/config.json", "**/secrets.json", "**/*.key", "**/*.pem", "**/*.crt", "**/*.cer",
-            "**/*.p12", "**/*.pfx", "**/*.jks", "**/*.keystore",
-            
-            // Documentation that's not code
-            "**/*.pdf", "**/*.doc", "**/*.docx", "**/*.ppt", "**/*.pptx", "**/*.xls", "**/*.xlsx",
-            "**/*.odt", "**/*.ods", "**/*.odp", "**/*.rtf", "**/*.pages", "**/*.numbers", "**/*.keynote",
-            
-            // Media files
-            "**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.gif", "**/*.bmp", "**/*.ico", "**/*.tiff", "**/*.tif",
-            "**/*.webp", "**/*.svg", "**/*.eps", "**/*.ai", "**/*.psd", "**/*.sketch", "**/*.fig",
-            "**/*.mp4", "**/*.avi", "**/*.mkv", "**/*.mov", "**/*.wmv", "**/*.flv", "**/*.webm",
-            "**/*.m4v", "**/*.3gp", "**/*.ogv", "**/*.mp3", "**/*.wav", "**/*.flac", "**/*.aac",
-            "**/*.ogg", "**/*.wma", "**/*.m4a", "**/*.opus",
-            
-            // Archives
-            "**/*.zip", "**/*.tar", "**/*.tar.gz", "**/*.tgz", "**/*.rar", "**/*.7z", "**/*.bz2",
-            "**/*.xz", "**/*.lzma", "**/*.gz", "**/*.Z", "**/*.deb", "**/*.rpm", "**/*.msi",
-            "**/*.dmg", "**/*.pkg", "**/*.app",
-            
-            // Test coverage and reports
-            "**/coverage/", "**/test-results/", "**/htmlcov/", "**/.nyc_output/", "**/.coverage",
-            "**/*.cover", "**/*.py,cover", "**/.hypothesis/", "**/.pytest_cache/", "**/nosetests.xml",
-            "**/coverage.xml", "**/*.lcov", "**/lcov.info",
-            
-            // Language-specific compiled/generated files
-            "**/*.pyc", "**/*.pyo", "**/*.pyd", "**/__pycache__/", "**/*.class", "**/*.jar",
-            "**/*.war", "**/*.ear", "**/*.nar", "**/*.o", "**/*.obj", "**/*.hi", "**/*.dyn_hi",
-            "**/*.dyn_o", "**/*.beam", "**/*.native", "**/*.byte", "**/*.cmi", "**/*.cmo",
-            "**/*.cmx", "**/*.cmxa", "**/*.cma", "**/*.cmxs",
-            
-            // Language-specific build directories
-            "**/.stack-work/", "**/.cabal-sandbox/", "**/cabal.sandbox.config", "**/dist-newstyle/",
-            "**/.gradle/", "**/gradlew", "**/gradlew.bat", "**/cmake-build-*/", "**/CMakeFiles/",
-            "**/CMakeCache.txt", "**/cmake_install.cmake", "**/install_manifest.txt", "**/Makefile",
-            
-            // Lock files (usually generated)
-            "**/package-lock.json", "**/yarn.lock", "**/pnpm-lock.yaml", "**/Cargo.lock",
-            "**/Pipfile.lock", "**/composer.lock", "**/Gemfile.lock", "**/poetry.lock",
-            "**/mix.lock", "**/pubspec.lock", "**/stack.yaml.lock", "**/flake.lock",
-            
-            // Cloud and deployment
-            "**/.terraform/", "**/*.tfstate", "**/*.tfstate.*", "**/*.tfplan", "**/*.tfvars",
-            "**/.pulumi/", "**/.serverless/", "**/.vercel/", "**/.netlify/", "**/.next/",
-            "**/.nuxt/", "**/.output/", "**/.firebase/", "**/.gcloud/", "**/.aws/", "**/cdk.out/",
-            
-            // Docker
-            "**/.dockerignore", "**/Dockerfile.*", "**/.docker/",
-            
-            // Mobile development
-            "**/*.ipa", "**/*.apk", "**/*.aab", "**/*.dSYM/", "**/*.xcarchive/", "**/*.xcworkspace/",
-            "**/*.xcodeproj/", "**/DerivedData/", "**/*.hmap", "**/*.xcuserstate", "**/project.xcworkspace",
-            "**/xcuserdata/",
-            
-            // Unity
-            "**/[Ll]ibrary/", "**/[Tt]emp/", "**/[Oo]bj/", "**/[Bb]uild/", "**/[Bb]uilds/",
-            "**/[Ll]ogs/", "**/[Mm]emoryCaptures/", "**/[Uu]serSettings/", "**/*.user", "**/*.userprefs",
-            "**/*.pidb", "**/*.booproj", "**/*.svd", "**/*.mdb", "**/*.opendb", "**/*.VC.db",
-            
-            // Game development
-            "**/*.blend1", "**/*.blend2", "**/*.fbx", "**/*.max", "**/*.maya", "**/*.mb", "**/*.ma",
-            "**/*.3ds", "**/*.dae", "**/*.mtl", "**/*.dds", "**/*.tga", "**/*.exr", "**/*.hdr",
-            
-            // Fonts
-            "**/*.ttf", "**/*.otf", "**/*.woff", "**/*.woff2", "**/*.eot",
-            
-            // Data files that are typically large/binary
-            "**/*.csv", "**/*.tsv", "**/*.parquet", "**/*.h5", "**/*.hdf5", "**/*.nc", "**/*.mat",
-            "**/*.npz", "**/*.npy", "**/*.pickle", "**/*.pkl", "**/*.joblib", "**/*.model",
-            "**/*.weights", "**/*.pt", "**/*.pth", "**/*.ckpt", "**/*.pb", "**/*.tflite",
-            "**/*.onnx", "**/*.mlmodel", "**/*.coreml", "**/datasets/", "**/data/",
-            "**/*.bin", "**/*.dat", "**/*.raw",
+            "**/*.log", "**/*.sqlite", "**/*.db", "**/*.sql", "**/*.sqlite3",
+            "**/*.sqlite-journal", "**/*.sqlite3-journal", "**/*.db-journal",
+            "**/logs/", "**/log/", "**/var/log/",
+    
+            // Archives and binaries
+            "**/*.zip", "**/*.tar.gz", "**/*.tgz", "**/*.7z", "**/*.rar", "**/*.tar",
+            "**/*.exe", "**/*.dmg", "**/*.pkg", "**/*.app", "**/*.msi", "**/*.deb",
+            "**/*.rpm", "**/*.snap",
+    
+            // Media and binary files
+            "**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.gif", "**/*.bmp", "**/*.tiff",
+            "**/*.ico", "**/*.svg", "**/*.mp3", "**/*.wav", "**/*.mp4", "**/*.avi",
+            "**/*.mov", "**/*.wmv", "**/*.flv", "**/*.mkv", "**/*.webp", "**/*.webm",
+            "**/*.woff", "**/*.woff2", "**/*.ttf", "**/*.eot", "**/*.otf",
+    
+            // Documents
+            "**/*.pdf", "**/*.doc", "**/*.docx", "**/*.xls", "**/*.xlsx", "**/*.ppt",
+            "**/*.pptx", "**/*.odt", "**/*.ods", "**/*.odp", "**/*.epub", "**/*.mobi",
+    
+            // Virtual machines and containers
+            "**/.vagrant/", "**/*.vagrant/", "**/*.vbox", "**/*.vbox-prev", "**/Vagrantfile",
+            "**/Dockerfile", "**/docker-compose*.yml", "**/.dockerignore", "**/.docker/",
+            "**/compose.yml", "**/docker-compose.override.yml",
+    
+            // OS generated files
+            "**/ehthumbs.db", "**/Thumbs.db", "**/desktop.ini", "**/$RECYCLE.BIN/",
+            "**/Thumbs.db:encryptable", "**/ehthumbs_vista.db", "**/Desktop.ini",
+    
+            // Python specific
+            "**/__pycache__/", "**/*.py[cod]", "**/*$py.class", "**/.pytest_cache/",
+            "**/.mypy_cache/", "**/.pytest_cache/", "**/.coverage", "**/htmlcov/",
+            "**/*.cover", "**/*.py,cover", "**/.hypothesis/", "**/.pytest/",
+    
+            // Node.js specific
+            "**/node_modules/", "**/.npm/", "**/.yarn-integrity", "**/.yarn/cache/",
+            "**/.yarn/unplugged/", "**/.yarn/build-state.yml", "**/.yarn/install-state.gz",
+            "**/.pnp.*", "**/.yarnrc.yml", "**/yarn-debug.log*", "**/yarn-error.log*",
+    
+            // Rust specific
+            "**/target/", "**/Cargo.lock", "**/*.rs.bk", "**/Cargo.toml.orig",
+    
+            // Java specific
+            "**/.classpath", "**/.project", "**/.settings/", "**/*.class",
+            "**/bin/", "**/build/", "**/out/", "**/*.iml",
+    
+            // Go specific
+            "**/bin/", "**/pkg/", "**/vendor/", "**/go.work", "**/go.work.sum",
+    
+            // Web and frontend
+            "**/dist/", "**/build/", "**/.next/", "**/out/", "**/.nuxt/", "**/.output/",
+            "**/.svelte-kit/", "**/.astro/", "**/.cache/", "**/.parcel-cache/",
+            "**/.turbo/", "**/.vercel/", "**/.netlify/",
+    
+            // Testing and coverage
+            "**/coverage/", "**/.nyc_output/", "**/coverage-*.lcov", "**/lcov.info",
+            "**/.jest-cache/", "**/jest.config.*", "**/karma.conf.*", "**/test-results/",
+    
+            // Documentation
+            "**/docs/_build/", "**/docs/api/", "**/site/", "**/.vuepress/", "**/storybook-static/",
+    
+            // Development tools
+            "**/.github/", "**/.circleci/", "**/.travis.yml", "**/.gitlab-ci.yml",
+            "**/Jenkinsfile", "**/azure-pipelines.yml", "**/.github/workflows/*.yaml",
+            "**/.pre-commit-config.yaml", "**/.commitlintrc*", "**/.husky/",
+    
+            // Temporary files
+            "**/*.swp", "**/*.swo", "**/*.swn", "**/*.swo", "**/*.swn", "**/*.bak",
+            "**/*.backup", "**/*.tmp", "**/*.temp", "**/*~", "**/*.orig", "**/*.rej",
+    
+            // macOS specific
+            "**/.DS_Store", "**/._*", "**/.Spotlight-V100", "**/.Trashes", "**/ehthumbs.db",
+    
+            // Windows specific
+            "**/Thumbs.db", "**/Desktop.ini", "**/Thumbs.db:encryptable",
+    
+            // Linux specific
+            "**/.directory", "**/.Trash-*", "**/.nfs*",
+    
+            // Additional patterns (from researched templates)
+            "**/.tox/", "**/.eggs/", "**/*.egg", "**/*.egg-info/", "**/.ipynb_checkpoints/", // Python extras
+            "**/celerybeat-schedule", "**/celerybeat.pid", "**/*.sage.py", "**/.pyre/", "**/.pytype/", "**/cython_debug/",
+            "**/bower_components/", "**/.bower-cache/", "**/npm-debug.log", "**/.eslintcache", // Node extras
+            "**/.gradle/", "**/gradlew", "**/gradlew.bat", "**/.mvn/", "**/mvnw", "**/mvnw.cmd", // Java extras
+            "**/vendor/", "**/composer.lock", "**/composer.phar", // PHP
+            "**/.bundle/", "**/vendor/bundle/", "**/vendor/cache/", "**/*.gem", // Ruby extras
+            "**/_build/", "**/deps/", "**/mix.lock", // Elixir
+            // Added from filter-rules.txt and archival ref.rs for more comprehensive filtering
+            "**/pnpm-lock.yaml", "**/yarn-error.log", "**/.npm/", "**/.yarn-integrity", "**/.yarn/cache/", "**/.yarn/unplugged/",
+            "**/public/hot", "**/public/storage", "**/storage/app/public", "**/storage/framework/sessions/*", "**/storage/framework/views/*",
+            "**/storage/framework/cache/data/*", "**/storage/logs/*.log", "Homestead.yaml", "Homestead.json", "**/var/", "**/public/bundles/",
+            "**/.metadata/", "**/.recommenders/", "**/Carthage/Build/", "**/Carthage/Checkouts/", "**/Pods/", "**/.swiftpm/",
+            "**/DerivedData/", "**/*.xcodeproj/project.xcworkspace/", "**/*.xcodeproj/xcuserdata/", "**/*.xcworkspace/contents.xcworkspacedata",
+            "**/*.xcworkspace/xcuserdata/", "**/app/build/", "**/*.apk", "**/*.aab", "**/captures/", "**/*.jks", "**/*.keystore",
+            "local.properties", "**/dist/", "**/gradle-wrapper.jar", "hs_err_pid*", "**/tmp/", "**/.dvc/cache", "**/.dvc/tmp",
+            "**/mlruns/", "**/mlflow-artifacts/", "**/.cache/huggingface/", "**/.terraform/", "**/*.tfstate", "**/*.tfstate.*",
+            "**/crash.log", "**/*.tfvars", "**/*.tfvars.json", "**/.terraformrc", "**/terraform.rc", "**/Pulumi.*.yaml",
+            "**/.azure-config/", "**/.aws/", "**/.azure/", "**/.config/gcloud/", "**/.dbeaver-data-sources.xml", "**/postman/backups/",
+            "**/.sonarqube/", "**/_NCrunch_*/", "**/*.crt", "**/*.csr", "**/*.ca", "**/*.pfx", "**/*.p12", "**/*.key",
+            "**/*.pem", "**/priv/static/", "**/*.native", "**/*.byte", "**/*.cmi", "**/*.cmo", "**/*.cmx", "**/*.cmxa", "**/*.cma",
+            "**/*.cmxs", "**/cmake-build-*/", "**/CMakeFiles/", "**/CMakeCache.txt", "**/cmake_install.cmake", "**/install_manifest.txt",
+            "**/Makefile", "**/cabal.sandbox.config", "**/dist-newstyle/", "**/.cabal-sandbox/", "**/.stack-work/", "**/pubspec.lock",
+            "**/stack.yaml.lock", "**/flake.lock", "**/cdk.out/", "**/.firebase/", "**/.gcloud/", "**/.vercel/", "**/.serverless/",
+            "**/.pulumi/", "**/local.properties", "**/xcuserdata/", "**/project.xcworkspace", "**/*.xcuserstate", "**/*.hmap",
+            "**/build/", "**/DerivedData/", "**/*.xcodeproj/", "**/*.xcworkspace/", "**/*.xcarchive/", "**/*.dSYM/", "**/*.app",
+            "**/*.ipa", "**/.docker/", "**/Dockerfile.*", "**/.dockerignore", "**/data/", "**/datasets/", "**/*.coreml", "**/*.mlmodel",
+            "**/*.onnx", "**/*.tflite", "**/*.pb", "**/*.h5", "**/*.ckpt", "**/*.pth", "**/*.pt", "**/*.weights", "**/*.model",
+            "**/*.joblib", "**/*.pkl", "**/*.pickle", "**/*.npy", "**/*.npz", "**/*.mat", "**/*.nc", "**/*.hdf5", "**/*.h5",
+            "**/*.parquet", "**/*.xml", "**/*.json", "**/*.tsv", "**/*.csv", "**/*.raw", "**/*.dat", "**/*.bin", "**/*.eot",
+            "**/*.woff2", "**/*.woff", "**/*.m4a", "**/*.opus", "**/*.wma", "**/*.ogg", "**/*.aac", "**/*.flac", "**/*.wav",
+            "**/*.mp3", "**/*.ogv", "**/*.3gp", "**/*.m4v", "**/*.webm", "**/*.flv", "**/*.wmv", "**/*.mov", "**/*.mkv",
+            "**/*.avi", "**/*.mp4", "**/*.fig", "**/*.sketch", "**/*.psd", "**/*.ai", "**/*.eps", "**/*.svg", "**/*.webp",
+            "**/*.tif", "**/*.tiff", "**/*.ico", "**/*.bmp", "**/*.gif", "**/*.jpeg", "**/*.jpg", "**/*.png", "**/*.keynote",
+            "**/*.numbers", "**/*.pages", "**/*.rtf", "**/*.odp", "**/*.ods", "**/*.odt", "**/*.xlsx", "**/*.xls", "**/*.pptx",
+            "**/*.ppt", "**/*.docx", "**/*.doc", "**/*.pdf", "**/azure-pipelines.yml", "**/Jenkinsfile", "**/.gitlab-ci.yml",
+            "**/.travis.yml", "**/.circleci/", "**/.github/", "**/.vercel/", "**/.netlify/", "**/.turbo/", "**/.parcel-cache/",
+            "**/.cache/", "**/.astro/", "**/.svelte-kit/", "**/.output/", "**/.nuxt/", "**/.next/", "**/karma.conf.*",
+            "**/jest.config.*", "**/.jest-cache/", "**/lcov.info", "**/coverage-*.lcov", "**/.nyc_output/", "**/coverage/",
+            "**/test-results/", "**/jest.config.*", "**/jest.config.*", "**/lcov.info", "**/coverage-*.lcov", "**/.nyc_output/",
+            "**/coverage/", "**/storybook-static/", "**/.vuepress/", "**/site/", "**/docs/api/", "**/docs/_build/", "**/*.rej",
+            "**/*.orig", "**/*~", "**/*.temp", "**/*.tmp", "**/*.backup", "**/*.bak", "**/.husky/", "**/.commitlintrc*",
+            "**/.pre-commit-config.yaml", "**/.github/workflows/*.yaml", "**/azure-pipelines.yml", "**/Jenkinsfile",
+            "**/.gitlab-ci.yml", "**/.travis.yml", "**/.circleci/", "**/.github/", "**/*.odp", "**/*.ods", "**/*.odt",
+            "**/*.pptx", "**/*.ppt", "**/*.xlsx", "**/*.xls", "**/*.docx", "**/*.doc", "**/*.pdf", "**/*.otf", "**/*.eot",
+            "**/*.ttf", "**/*.woff2", "**/*.woff", "**/*.webm", "**/*.webp", "**/*.mkv", "**/*.flv", "**/*.wmv", "**/*.mov",
+            "**/*.avi", "**/*.mp4", "**/*.wav", "**/*.mp3", "**/*.svg", "**/*.ico", "**/*.tiff", "**/*.bmp", "**/*.gif",
+            "**/*.jpeg", "**/*.jpg", "**/*.png", "**/*.raw", "**/*.dat", "**/*.bin", "**/data/", "**/datasets/", "**/*.coreml",
+            "**/*.mlmodel", "**/*.onnx", "**/*.tflite", "**/*.pb", "**/*.h5", "**/*.ckpt", "**/*.pth", "**/*.pt", "**/*.weights",
+            "**/*.model", "**/*.joblib", "**/*.pkl", "**/*.pickle", "**/*.npy", "**/*.npz", "**/*.mat", "**/*.nc", "**/*.hdf5",
+            "**/*.h5", "**/*.parquet", "**/*.xml", "**/*.json", "**/*.tsv", "**/*.csv", "**/*.opus", "**/*.m4a", "**/*.wma",
+            "**/*.ogg", "**/*.aac", "**/*.flac", "**/*.wav", "**/*.mp3", "**/*.ogv", "**/*.3gp", "**/*.m4v", "**/*.webm",
+            "**/*.flv", "**/*.wmv", "**/*.mov", "**/*.mkv", "**/*.avi", "**/*.mp4", "**/*.fig", "**/*.sketch", "**/*.psd",
+            "**/*.ai", "**/*.eps", "**/*.svg", "**/*.webp", "**/*.tif", "**/*.tiff", "**/*.ico", "**/*.bmp", "**/*.gif",
+            "**/*.jpeg", "**/*.jpg", "**/*.png", "**/postman/backups/", "**/.dbeaver-data-sources.xml", "**/.config/gcloud/",
+            "**/.azure/", "**/.aws/", "**/.azure-config/", "**/Pulumi.*.yaml", "**/.pulumi/", "**/*.tfvars.json", "**/*.tfvars",
+            "**/crash.log", "**/*.tfstate.*", "**/*.tfstate", "**/.terraform/", "**/.cache/huggingface/", "**/mlflow-artifacts/",
+            "**/mlruns/", "**/.dvc/tmp", "**/.dvc/cache", "**/.ipynb_checkpoints/", "**/*.raw", "**/*.dat", "**/*.bin",
+            "**/data/", "**/datasets/", "**/*.coreml", "**/*.mlmodel", "**/*.onnx", "**/*.tflite", "**/*.pb", "**/*.h5",
+            "**/*.ckpt", "**/*.pth", "**/*.pt", "**/*.weights", "**/*.model", "**/*.joblib", "**/*.pkl", "**/*.pickle",
+            "**/*.npy", "**/*.npz", "**/*.mat", "**/*.nc", "**/*.hdf5", "**/*.h5", "**/*.parquet", "**/*.xml", "**/*.json",
+            "**/*.tsv", "**/*.csv", "**/*.eot", "**/*.woff2", "**/*.woff", "**/*.opus", "**/*.m4a", "**/*.wma", "**/*.ogg",
+            "**/*.aac", "**/*.flac", "**/*.wav", "**/*.mp3", "**/*.ogv", "**/*.3gp", "**/*.m4v", "**/*.webm", "**/*.flv",
+            "**/*.wmv", "**/*.mov", "**/*.mkv", "**/*.avi", "**/*.mp4", "**/*.fig", "**/*.sketch", "**/*.psd", "**/*.ai",
+            "**/*.eps", "**/*.svg", "**/*.webp", "**/*.tif", "**/*.tiff", "**/*.ico", "**/*.bmp", "**/*.gif", "**/*.jpeg",
+            "**/*.jpg", "**/*.png", "**/keynote", "**/numbers", "**/pages", "**/rtf", "**/odp", "**/ods", "**/odt",
+            "**/xlsx", "**/xls", "**/pptx", "**/ppt", "**/docx", "**/doc", "**/pdf", "**/azure-pipelines.yml", "**/Jenkinsfile",
+            "**/.gitlab-ci.yml", "**/.travis.yml", "**/.circleci/", "**/.github/", "**/vercel/", "**/netlify/", "**/turbo/",
+            "**/parcel-cache/", "**/cache/", "**/astro/", "**/svelte-kit/", "**/output/", "**/nuxt/", "**/next/",
+            "**/karma.conf.*", "**/jest.config.*", "**/jest-cache/", "**/lcov.info", "**/coverage-*.lcov", "**/nyc_output/",
+            "**/coverage/", "**/test-results/", "**/storybook-static/", "**/vuepress/", "**/site/", "**/docs/api/",
+            "**/docs_build/", "**/rej", "**/orig", "**/~", "**/temp", "**/tmp", "**/backup", "**/bak", "**/husky/",
+            "**/commitlintrc*", "**/pre-commit-config.yaml", "**/github/workflows/*.yaml", "**/azure-pipelines.yml",
+            "**/Jenkinsfile", "**/gitlab-ci.yml", "**/travis.yml", "**/circleci/", "**/github/", "**/odp", "**/ods",
+            "**/odt", "**/pptx", "**/ppt", "**/xlsx", "**/xls", "**/docx", "**/doc", "**/pdf", "**/otf", "**/eot",
+            "**/ttf", "**/woff2", "**/woff", "**/webm", "**/webp", "**/mkv", "**/flv", "**/wmv", "**/mov", "**/avi",
+            "**/mp4", "**/mp3", "**/wav", "**/flac", "**/aac", "**/ogg", "**/wma", "**/m4a", "**/opus", "**/ogv",
+            "**/3gp", "**/m4v", "**/webm", "**/flv", "**/wmv", "**/mov", "**/mkv", "**/avi", "**/mp4", "**/fig",
+            "**/sketch", "**/psd", "**/ai", "**/eps", "**/svg", "**/webp", "**/tif", "**/tiff", "**/ico", "**/bmp",
+            "**/gif", "**/jpeg", "**/jpg", "**/png", "**/postman/backups/", "**/dbeaver-data-sources.xml",
+            "**/config/gcloud/", "**/azure/", "**/aws/", "**/azure-config/", "**/Pulumi.*.yaml", "**/pulumi/",
+            "**/tfvars.json", "**/tfvars", "**/crash.log", "**/tfstate.*", "**/tfstate", "**/terraform/",
+            "**/cache/huggingface/", "**/mlflow-artifacts/", "**/mlruns/", "**/dvc/tmp", "**/dvc/cache",
+            "**/ipynb_checkpoints/", "**/raw", "**/dat", "**/bin", "**/data/", "**/datasets/", "**/coreml",
+            "**/mlmodel", "**/onnx", "**/tflite", "**/pb", "**/h5", "**/ckpt", "**/pth", "**/pt", "**/weights",
+            "**/model", "**/joblib", "**/pkl", "**/pickle", "**/npy", "**/npz", "**/mat", "**/nc", "**/hdf5",
+            "**/h5", "**/parquet", "**/xml", "**/json", "**/tsv", "**/csv", "**/opus", "**/m4a", "**/wma",
+            "**/ogg", "**/aac", "**/flac", "**/wav", "**/mp3", "**/ogv", "**/3gp", "**/m4v", "**/webm",
+            "**/flv", "**/wmv", "**/mov", "**/mkv", "**/avi", "**/mp4", "**/fig", "**/sketch", "**/psd",
+            "**/ai", "**/eps", "**/svg", "**/webp", "**/tif", "**/tiff", "**/ico", "**/bmp", "**/gif",
+            "**/jpeg", "**/jpg", "**/png", "**/keynote", "**/numbers", "**/pages", "**/rtf", "**/odp",
+            "**/ods", "**/odt", "**/xlsx", "**/xls", "**/pptx", "**/ppt", "**/docx", "**/doc", "**/pdf",
+            "**/otf", "**/eot", "**/ttf", "**/woff2", "**/woff", "**/webm", "**/webp", "**/mkv", "**/flv",
+            "**/wmv", "**/mov", "**/avi", "**/mp4", "**/mp3", "**/wav", "**/flac", "**/aac", "**/ogg",
+            "**/wma", "**/m4a", "**/opus", "**/ogv", "**/3gp", "**/m4v", "**/webm", "**/flv", "**/wmv",
+            "**/mov", "**/mkv", "**/avi", "**/mp4", "**/fig", "**/sketch", "**/psd", "**/ai", "**/eps",
+            "**/svg", "**/webp", "**/tif", "**/tiff", "**/ico", "**/bmp", "**/gif", "**/jpeg", "**/jpg",
+            "**/png", "**/postman/backups/", "**/dbeaver-data-sources.xml", "**/config/gcloud/", "**/azure/",
+            "**/aws/", "**/azure-config/", "**/Pulumi.*.yaml", "**/pulumi/", "**/tfvars.json", "**/tfvars",
+            "**/crash.log", "**/tfstate.*", "**/tfstate", "**/terraform/", "**/cache/huggingface/",
+            "**/mlflow-artifacts/", "**/mlruns/", "**/dvc/tmp", "**/dvc/cache", "**/ipynb_checkpoints/",
+            "**/raw", "**/dat", "**/bin", "**/data/", "**/datasets/", "**/coreml", "**/mlmodel", "**/onnx",
+            "**/tflite", "**/pb", "**/h5", "**/ckpt", "**/pth", "**/pt", "**/weights", "**/model", "**/joblib",
+            "**/pkl", "**/pickle", "**/npy", "**/npz", "**/mat", "**/nc", "**/hdf5", "**/h5", "**/parquet",
+            "**/xml", "**/json", "**/tsv", "**/csv", "**/opus", "**/m4a", "**/wma", "**/ogg", "**/aac",
+            "**/flac", "**/wav", "**/mp3", "**/ogv", "**/3gp", "**/m4v", "**/webm", "**/flv", "**/wmv",
+            "**/mov", "**/mkv", "**/avi", "**/mp4", "**/fig", "**/sketch", "**/psd", "**/ai", "**/eps",
+            "**/svg", "**/webp", "**/tif", "**/tiff", "**/ico", "**/bmp", "**/gif", "**/jpeg", "**/jpg",
+            "**/png", "**/keynote", "**/numbers", "**/pages", "**/rtf", "**/odp", "**/ods", "**/odt",
+            "**/xlsx", "**/xls", "**/pptx", "**/ppt", "**/docx", "**/doc", "**/pdf", "**/otf", "**/eot",
+            "**/ttf", "**/woff2", "**/woff", "**/webm", "**/webp", "**/mkv", "**/flv", "**/wmv", "**/mov",
+            "**/avi", "**/mp4", "**/mp3", "**/wav", "**/flac", "**/aac", "**/ogg", "**/wma", "**/m4a",
+            "**/opus", "**/ogv", "**/3gp", "**/m4v", "**/webm", "**/flv", "**/wmv", "**/mov", "**/mkv",
+            "**/avi", "**/mp4", "**/fig", "**/sketch", "**/psd", "**/ai", "**/eps", "**/svg", "**/webp",
+            "**/tif", "**/tiff", "**/ico", "**/bmp", "**/gif", "**/jpeg", "**/jpg", "**/png", "**/postman/backups/",
+            "**/dbeaver-data-sources.xml", "**/config/gcloud/", "**/azure/", "**/aws/", "**/azure-config/",
+            "**/Pulumi.*.yaml", "**/pulumi/", "**/tfvars.json", "**/tfvars", "**/crash.log", "**/tfstate.*",
+            "**/tfstate", "**/terraform/", "**/cache/huggingface/", "**/mlflow-artifacts/", "**/mlruns/",
+            "**/dvc/tmp", "**/dvc/cache", "**/ipynb_checkpoints/", "**/raw", "**/dat", "**/bin", "**/data/",
+            "**/datasets/", "**/coreml", "**/mlmodel", "**/onnx", "**/tflite", "**/pb", "**/h5", "**/ckpt",
+            "**/pth", "**/pt", "**/weights", "**/model", "**/joblib", "**/pkl", "**/pickle", "**/npy",
+            "**/npz", "**/mat", "**/nc", "**/hdf5", "**/h5", "**/parquet", "**/xml", "**/json", "**/tsv",
+            "**/csv", "**/opus", "**/m4a", "**/wma", "**/ogg", "**/aac", "**/flac", "**/wav", "**/mp3",
+            "**/ogv", "**/3gp", "**/m4v", "**/webm", "**/flv", "**/wmv", "**/mov", "**/mkv", "**/avi",
+            "**/mp4", "**/fig", "**/sketch", "**/psd", "**/ai", "**/eps", "**/svg", "**/webp", "**/tif",
+            "**/tiff", "**/ico", "**/bmp", "**/gif", "**/jpeg", "**/jpg", "**/png", "**/keynote", "**/numbers",
+            "**/pages", "**/rtf", "**/odp", "**/ods", "**/odt", "**/xlsx", "**/xls", "**/pptx", "**/ppt",
+            "**/docx", "**/doc", "**/pdf", "**/otf", "**/eot", "**/ttf", "**/woff2", "**/woff", "**/webm",
+            "**/webp", "**/mkv", "**/flv", "**/wmv", "**/mov", "**/avi", "**/mp4", "**/mp3", "**/wav",
+            "**/flac", "**/aac", "**/ogg", "**/wma", "**/m4a", "**/opus", "**/ogv", "**/3gp", "**/m4v",
+            "**/webm", "**/flv", "**/wmv", "**/mov", "**/mkv", "**/avi", "**/mp4", "**/fig", "**/sketch",
+            "**/psd", "**/ai", "**/eps", "**/svg", "**/webp", "**/tif", "**/tiff", "**/ico", "**/bmp",
+            "**/gif", "**/jpeg", "**/jpg", "**/png", "**/postman/backups/", "**/dbeaver-data-sources.xml",
+            "**/config/gcloud/", "**/azure/", "**/aws/", "**/azure-config/", "**/Pulumi.*.yaml", "**/pulumi/",
+            "**/tfvars.json", "**/tfvars", "**/crash.log", "**/tfstate.*", "**/tfstate", "**/terraform/",
+            "**/cache/huggingface/", "**/mlflow-artifacts/", "**/mlruns/", "**/dvc/tmp", "**/dvc/cache",
+            "**/ipynb_checkpoints/", "**/raw", "**/dat", "**/bin", "**/data/", "**/datasets/", "**/coreml",
+            "**/mlmodel", "**/onnx", "**/tflite", "**/pb", "**/h5", "**/ckpt", "**/pth", "**/pt", "**/weights",
+            "**/model", "**/joblib", "**/pkl", "**/pickle", "**/npy", "**/npz", "**/mat", "**/nc", "**/hdf5",
+            "**/h5", "**/parquet", "**/xml", "**/json", "**/tsv", "**/csv",
         ]
     }
-
     /// Get the set of file extensions to include
     pub fn get_included_extensions(&self) -> Option<HashSet<String>> {
         self.include_extensions.as_ref().map(|exts| {
