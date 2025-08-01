@@ -1,27 +1,27 @@
 # 🧙‍♂️ Interview Irodov Toolkit
 
-**Production-ready Rust tools for code analysis, archiving, and intelligent processing**
+**Production-ready Rust workspace for code archiving, analysis, and processing**
 
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue)](LICENSE-APACHE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange)](https://www.rust-lang.org)
-[![Tests](https://img.shields.io/badge/tests-103%2B%20passing-green)](#testing)
+[![Tests](https://img.shields.io/badge/tests-115%2B%20passing-green)](#testing)
 [![Coverage](https://img.shields.io/badge/coverage-comprehensive-brightgreen)](#testing)
 
 ## 🎯 What It Does
 
-Transform any codebase into searchable text archives, analyze project structure with intelligent filtering, compress TypeScript files, and split large files - all with blazing-fast parallel processing and comprehensive CLI experience.
+A comprehensive Rust workspace providing four specialized tools for code processing: create text archives with intelligent filtering, analyze project structure with Git integration, compress TypeScript files, and split large files - all with parallel processing and rich CLI feedback.
 
 ```bash
-# Archive with intelligent LLM-optimized filtering (270+ exclusion patterns)
+# Create text archive with LLM-optimized filtering
+cargo run -p archive-to-txt --release -- --input ./my-project --output archive.txt
+
+# Archive with TypeScript processing and intelligent filtering
 cargo run -p ts-compressor --release -- archive ./my-project
 
-# Analyze codebase structure with detailed metrics
-cargo run -p code-archiver --release -- --root ./my-project --format json --git
+# Analyze codebase structure with Git status tracking
+cargo run -p code-archiver --release -- --dir ./my-project --format json
 
-# Compress TypeScript with advanced minification
-cargo run -p ts-compressor --release -- compress ./src ./dist
-
-# Split large files with progress tracking
+# Split large files with configurable chunk sizes
 cargo run -p file-splitter --release -- --input large-file.txt --chunk-size 10MB
 ```
 
@@ -29,74 +29,55 @@ cargo run -p file-splitter --release -- --input large-file.txt --chunk-size 10MB
 
 ```bash
 # Clone and run immediately
-git clone https://github.com/yourusername/interview-irodov.git
+git clone <repository-url>
 cd interview-irodov
 
-# Archive with intelligent LLM filtering (enabled by default)
+# Create text archive with parallel processing
+cargo run -p archive-to-txt --release -- --input ./my-project --output archive.txt
+
+# Archive with TypeScript processing and LLM optimization
 cargo run -p ts-compressor --release -- archive ./my-project
 
-# With comprehensive statistics and custom filtering
-cargo run -p ts-compressor --release -- archive ./my-project \
-  --include-extensions "rs,js,ts,py" \
-  --ignore-pattern "*.tmp" \
-  --ignore-pattern "test_*" \
-  --output-dir ./archives
+# Analyze project structure with Git integration
+cargo run -p code-archiver --release -- --dir ./my-project --format json
 ```
 
 ## ✨ Why Use This Toolkit
 
-- **🚀 Fast**: Parallel processing handles large codebases in seconds
-- **🤖 Smart**: LLM-optimized filtering with 270+ exclusion patterns
-- **📊 Transparent**: Rich CLI experience with detailed statistics
-- **🔒 Safe**: Memory-safe Rust with comprehensive error handling
-- **🧪 Tested**: 103+ tests ensuring reliability and correctness
+- **🚀 Fast**: Parallel processing with Rayon handles large codebases efficiently
+- **🤖 Smart**: Intelligent filtering with Git integration and binary detection
+- **📊 Transparent**: Rich CLI experience with detailed progress feedback
+- **🔒 Safe**: Memory-safe Rust with comprehensive error handling using anyhow/thiserror
+- **🧪 Tested**: 115+ tests across workspace ensuring reliability and correctness
 
 ## 🛠️ Tools Overview
 
 | Tool | Purpose | Key Features | Best For |
 |------|---------|--------------|----------|
-| `ts-compressor` | TypeScript & Code Archiving | LLM-optimized filtering, Git integration, 270+ exclusion patterns | LLM training data, code analysis |
-| `code-archiver` | Structured analysis | Git status tracking, JSON/text output, glob patterns | Project metrics, dependency mapping |
-| `archive-to-txt` | Text archive creation | Directory tree visualization, binary detection | Documentation, backup archives |
-| `file-splitter` | Large file management | Progress tracking, configurable chunk sizes | Processing huge datasets |
+| `archive-to-txt` | Text archive creation | Parallel processing, Git integration, directory tree visualization | Documentation, searchable archives |
+| `ts-compressor` | TypeScript compilation & archiving | SWC-based compilation, LLM-optimized filtering, timestamped archives | TypeScript projects, LLM training data |
+| `code-archiver` | Project structure analysis | Git status tracking, JSON/text output, glob pattern filtering | Project metrics, codebase analysis |
+| `file-splitter` | Large file splitting | Configurable chunk sizes, progress tracking, size parsing | Processing large datasets, file management |
 
-### 🌟 Featured Tool: ts-compressor
+### 🌟 Featured Tool: archive-to-txt
 
-The `ts-compressor` is our flagship tool with enhanced CLI experience:
+The `archive-to-txt` is our flagship tool for creating comprehensive text archives:
 
 ```bash
-# Rich visual feedback with comprehensive statistics
-🚀 Starting archive creation...
-📁 Target: ./my-project
-📄 Output: ./my-project-20250127225903.txt
-🤖 LLM optimization: ENABLED
-────────────────────────────────────────────────────────────
+# Create text archive with parallel processing and Git integration
+cargo run -p archive-to-txt --release -- \
+  --input ./my-project \
+  --output archive.txt \
+  --show-filter-stats
 
-============================================================
-📊 File Filtering Statistics
-============================================================
-   📁 Total files discovered: 1,247
-   ✅ Files included: 523 🟢
-   ❌ Files excluded: 724 🔴
-   📋 Exclusion breakdown:
-      ├─ LLM optimization: 724 files 🤖
-      │  ✨ LLM optimization excluded:
-      │     • Build artifacts and compiled files
-      │     • Dependencies and package manager files
-      │     • Cache and temporary files
-      │     • IDE and editor configuration
-      │     • Binary media files
-      │     • Environment and secret files
-      │     • Large data files and ML models
-      │  📚 Creates cleaner training data focused on source code
-   📈 Inclusion rate: 42.0%
-   💾 Total size included: 2.4 MB (2,457,600 bytes)
-
-🎉 Archive processing completed successfully!
-============================================================
-✅ Archive successfully created!
-📄 File: ./my-project-20250127225903.txt
-📏 Size: 2.6 MB (2,723,456 bytes)
+# Features:
+# ✅ Parallel processing with Rayon
+# ✅ Git integration (respects .gitignore)
+# ✅ Directory tree visualization
+# ✅ Binary file detection and handling
+# ✅ LLM-optimized filtering (optional)
+# ✅ Configurable extensions and patterns
+# ✅ Rich statistics and progress feedback
 ```
 
 ## Common Use Cases
@@ -112,28 +93,27 @@ cargo run -p archive-to-txt --release -- \
 
 ### For Code Analysis  
 ```bash
-# Generate detailed project metrics
+# Generate detailed project metrics with Git status
 cargo run -p code-archiver --release -- \
-  --input ./my-project \
-  --output analysis.json \
+  --dir ./my-project \
   --format json \
-  --include-metrics
+  --extensions rs js ts py
 ```
 
-### For Build Optimization
+### For TypeScript Processing
 ```bash
-# Compress TypeScript for production
-cargo run -p ts-compressor --release -- compress \
-  --input ./src \
-  --output ./dist \
-  --minify
+# Compress TypeScript files to minified JavaScript
+cargo run -p ts-compressor --release -- compress input_dir output_dir
+
+# Create archive with TypeScript-aware processing
+cargo run -p ts-compressor --release -- archive ./my-project
 ```
 
 ## Installation Options
 
 ### Run Without Installing (Recommended)
 ```bash
-git clone https://github.com/yourusername/interview-irodov.git
+git clone <repository-url>
 cd interview-irodov
 cargo run -p <tool-name> --release -- [options]
 ```
@@ -155,27 +135,34 @@ code-archiver = { path = "./code-archiver" }
 
 ## Performance
 
-Tested on Intel i7-12700K, 32GB RAM:
+The toolkit is designed for efficient processing with parallel execution:
 
-| Project Size | Files | Time (Sequential) | Time (Parallel) |
-|--------------|-------|-------------------|-----------------|
-| Small (100 files) | 100 | 0.8s | 0.3s |
-| Medium (1K files) | 1,000 | 4.2s | 1.1s |
-| Large (10K files) | 10,000 | 42.1s | 8.7s |
-| XLarge (100K files) | 100,000 | 7m 23s | 1m 34s |
+- **Parallel Processing**: Uses Rayon for multi-threaded file processing
+- **Memory Efficient**: Streaming processing for large files
+- **Git Integration**: Respects .gitignore for faster traversal
+- **Binary Detection**: Skips binary files to focus on text content
+- **Configurable Limits**: Adjustable file size and processing limits
 
 ## Configuration
 
-Create `.interview-irodov.toml` in your project:
+Each tool supports command-line configuration:
 
-```toml
-[filters]
-include_extensions = ["rs", "js", "ts", "py", "md"]
-exclude_patterns = ["target/**", "node_modules/**", ".git/**"]
+```bash
+# archive-to-txt: Configure filtering and processing
+cargo run -p archive-to-txt -- \
+  --input ./project \
+  --output archive.txt \
+  --include-extensions "rs,js,ts" \
+  --ignore-pattern "target/**" \
+  --ignore-pattern "node_modules/**"
 
-[processing]  
-parallel = true
-max_file_size = "10MB"
+# code-archiver: Configure analysis options
+cargo run -p code-archiver -- \
+  --dir ./project \
+  --include "*.rs" \
+  --exclude "target/**" \
+  --extensions rs js ts \
+  --format json
 ```
 
 ## Advanced Examples
@@ -190,10 +177,10 @@ OUTPUT="./analysis_$(date +%Y%m%d)"
 cargo run -p archive-to-txt --release -- --input "$PROJECT" --output "$OUTPUT/archive.txt"
 
 # 2. Generate structure analysis  
-cargo run -p code-archiver --release -- --input "$PROJECT" --output "$OUTPUT/analysis.json" --format json
+cargo run -p code-archiver --release -- --dir "$PROJECT" --format json > "$OUTPUT/analysis.json"
 
 # 3. Process TypeScript if present
-cargo run -p ts-compressor --release -- archive --input "$PROJECT" --output "$OUTPUT/ts_archive.txt"
+cargo run -p ts-compressor --release -- archive "$PROJECT"
 
 # 4. Split large files if needed
 find "$OUTPUT" -size +50M -exec cargo run -p file-splitter --release -- --input {} --chunk-size 50MB \;
@@ -201,19 +188,17 @@ find "$OUTPUT" -size +50M -exec cargo run -p file-splitter --release -- --input 
 
 ### Programmatic Usage
 ```rust
-use archive_to_txt::{ArchiveEngine, Config};
+use archive_to_txt::{archive_directory, config::Config};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::default()
-        .with_input("./my-project")
-        .with_output("./archive.txt")
         .with_parallel(true)
-        .with_include_extensions("rs,js,ts");
+        .with_llm_optimize(true)
+        .with_include_extensions(Some("rs,js,ts".to_string()));
     
-    let mut engine = ArchiveEngine::new(config)?;
-    let stats = engine.run()?;
+    let stats = archive_directory("./my-project", "./archive.txt", &config)?;
     
-    println!("Processed {} files in {:?}", stats.files_processed, stats.duration);
+    println!("Processed {} files", stats.files_processed);
     Ok(())
 }
 ```
@@ -240,13 +225,14 @@ cargo test --test integration_system_tests -- --nocapture
 
 ### Test Coverage Statistics
 
-| Component | Unit Tests | Integration Tests | Total Coverage |
-|-----------|------------|-------------------|----------------|
-| `ts-compressor` | 45+ tests | 8 comprehensive tests | 95%+ |
-| `code-archiver` | 35+ tests | 6 integration tests | 92%+ |
-| `archive-to-txt` | 25+ tests | 4 system tests | 90%+ |
-| `file-splitter` | 15+ tests | 3 integration tests | 88%+ |
-| **Total** | **120+ tests** | **21 integration tests** | **91%+ overall** |
+| Component | Unit Tests | Integration Tests | Test Files |
+|-----------|------------|-------------------|------------|
+| `ts-compressor` | Multiple unit tests | 1 integration test file | 1 test file |
+| `code-archiver` | Multiple unit tests | 7 integration test files | 7 test files |
+| `archive-to-txt` | Multiple unit tests | 1 parallel test file | 1 test file |
+| `file-splitter` | Multiple unit tests | 1 integration test file | 1 test file |
+| `common` | Multiple unit tests | 2 test files | 2 test files |
+| **Total** | **115+ individual tests** | **12 test files** | **Comprehensive coverage** |
 
 ### Integration Test Categories
 
@@ -304,7 +290,7 @@ cargo test error_handling
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/interview-irodov.git
+git clone <repository-url>
 cd interview-irodov
 
 # Build all tools in release mode
