@@ -161,13 +161,25 @@ pub fn split_file(config: &SplitConfig) -> Result<SplitResult> {
     // Calculate number of chunks needed
     let total_chunks = ((file_size as f64) / (config.chunk_size as f64)).ceil() as usize;
     
-    // Determine the filename prefix
-    let prefix = match &config.prefix {
-        Some(p) => p.clone(),
-        None => input_path.file_stem()
-            .and_then(|s| s.to_str())
-            .unwrap_or("chunk")
-            .to_string(),
+    // Determine the filename base and extension following idiomatic patterns (Pattern 3.1-3.3)
+    let (base_name, extension) = match &config.prefix {
+        Some(p) => (p.clone(), String::new()), // Custom prefix, no extension
+        None => {
+            let file_name = input_path.file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or("chunk");
+            
+            // Handle complex extensions like .tar.gz by finding the first dot
+            // This preserves the full extension while getting the true base name
+            if let Some(dot_pos) = file_name.find('.') {
+                let base_name = file_name[..dot_pos].to_string();
+                let extension = file_name[dot_pos..].to_string();
+                (base_name, extension)
+            } else {
+                // No extension found
+                (file_name.to_string(), String::new())
+            }
+        }
     };
     
     // Open the input file
@@ -180,9 +192,10 @@ pub fn split_file(config: &SplitConfig) -> Result<SplitResult> {
     // Process each chunk
     for chunk_num in 0..total_chunks {
         let chunk_path = output_dir.join(format!(
-            "{}.{:0width$}",
-            prefix,
+            "{}-{:0width$}{}",
+            base_name,
             chunk_num + 1,
+            extension,
             width = config.digits as usize
         ));
         
@@ -388,7 +401,9 @@ mod tests {
         };
         
         let result = split_file(&config)?;
-        assert!(result.chunks[0].path.file_name().unwrap().to_str().unwrap().starts_with("test_prefix."));
+        // New format: test_prefix-001.txt, test_prefix-002.txt
+        assert!(result.chunks[0].path.file_name().unwrap().to_str().unwrap().starts_with("test_prefix-"));
+        assert!(result.chunks[0].path.file_name().unwrap().to_str().unwrap().ends_with(".txt"));
         
         Ok(())
     }
@@ -412,13 +427,92 @@ mod tests {
         Ok(())
     }
 
+    // Test extension preservation with default naming
+    #[test]
+    fn test_extension_preservation() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "document.txt", b"Hello World!")?; // 12 bytes
+        
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 4, // 12 bytes / 4 = 3 chunks exactly
+            ..Default::default()
+        };
+        
+        let result = split_file(&config)?;
+        
+        // Should create document-001.txt, document-002.txt, document-003.txt
+        assert_eq!(result.chunks.len(), 3);
+        
+        let chunk_names: Vec<String> = result.chunks.iter()
+            .map(|chunk| chunk.path.file_name().unwrap().to_str().unwrap().to_string())
+            .collect();
+        
+        assert_eq!(chunk_names[0], "document-001.txt");
+        assert_eq!(chunk_names[1], "document-002.txt");
+        assert_eq!(chunk_names[2], "document-003.txt");
+        
+        Ok(())
+    }
+
+    // Test extension preservation with complex extensions
+    #[test]
+    fn test_complex_extension_preservation() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "archive.tar.gz", b"compressed data here")?;
+        
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 8,
+            ..Default::default()
+        };
+        
+        let result = split_file(&config)?;
+        
+        // Should create archive-001.tar.gz, archive-002.tar.gz, archive-003.tar.gz
+        let chunk_names: Vec<String> = result.chunks.iter()
+            .map(|chunk| chunk.path.file_name().unwrap().to_str().unwrap().to_string())
+            .collect();
+        
+        assert!(chunk_names[0].ends_with(".tar.gz"));
+        assert!(chunk_names[0].starts_with("archive-001"));
+        
+        Ok(())
+    }
+
+    // Test file without extension
+    #[test]
+    fn test_no_extension_file() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let input_path = create_test_file(temp_dir.path(), "README", b"This is a readme file")?;
+        
+        let config = SplitConfig {
+            input_path: input_path.to_str().unwrap().to_string(),
+            chunk_size: 10,
+            ..Default::default()
+        };
+        
+        let result = split_file(&config)?;
+        
+        // Should create README-001, README-002, README-003
+        let chunk_names: Vec<String> = result.chunks.iter()
+            .map(|chunk| chunk.path.file_name().unwrap().to_str().unwrap().to_string())
+            .collect();
+        
+        assert_eq!(chunk_names[0], "README-001");
+        assert_eq!(chunk_names[1], "README-002");
+        assert_eq!(chunk_names[2], "README-003");
+        
+        Ok(())
+    }
+
     // Test number padding with different digit counts
     #[test]
     fn test_number_padding() -> Result<()> {
         let temp_dir = tempdir()?;
         let input_path = create_test_file(temp_dir.path(), "test_padding.txt", &[b'x'; 30])?;
         
-        // Test with 2 digits
+        // Test with 2 digits - new format: test_padding-01.txt
         let config = SplitConfig {
             input_path: input_path.to_str().unwrap().to_string(),
             chunk_size: 10, // Will create 3 chunks
@@ -428,9 +522,9 @@ mod tests {
         
         let result = split_file(&config)?;
         let chunk_name = result.chunks[0].path.file_name().unwrap().to_str().unwrap();
-        assert!(chunk_name.ends_with(".01"));
+        assert_eq!(chunk_name, "test_padding-01.txt");
         
-        // Test with 4 digits
+        // Test with 4 digits - new format: test_padding-0001.txt
         let config = SplitConfig {
             input_path: input_path.to_str().unwrap().to_string(),
             chunk_size: 10, // Will create 3 chunks
@@ -440,7 +534,7 @@ mod tests {
         
         let result = split_file(&config)?;
         let chunk_name = result.chunks[0].path.file_name().unwrap().to_str().unwrap();
-        assert!(chunk_name.ends_with(".0001"));
+        assert_eq!(chunk_name, "test_padding-0001.txt");
         
         Ok(())
     }
