@@ -15,6 +15,14 @@ A comprehensive Rust workspace providing four specialized tools for code process
 # Create text archive with LLM-optimized filtering
 cargo run -p archive-to-txt --release -- --input ./my-project --output archive.txt
 
+# example
+
+cargo run -p archive-to-txt --release -- --input ~/Desktop/GitHub202410/tweet-scrolls/ --output archive.txt
+
+# results
+
+![alt text](image.png)
+
 # Archive with TypeScript processing and intelligent filtering
 cargo run -p ts-compressor --release -- archive ./my-project
 
