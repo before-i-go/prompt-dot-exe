@@ -1,0 +1,8 @@
+A  file-splitter/EXTENSION_PRESERVATION_FIX.md
+A  file-splitter/demo_extension_fix
+A  file-splitter/demo_extension_fix.rs
+M  file-splitter/src/lib.rs
+A  file-splitter/test_document.txt
+?? git_status.txt
+?? git_tracked_files.txt
+?? recent_commits.txt
