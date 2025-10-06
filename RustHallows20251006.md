@@ -168,3 +168,75 @@ Crash containment survives   kernel panic
 • Shows micro-kernel isolation (app crash ≠ system crash).  
 • Demonstrates scheduler advantage without porting Redis or NVMe yet.  
 • Adds zero throw-away work: `floo_nic` and Time-Turner go straight into the full product.
+
+---
+
+## Adjacent Repository Study
+
+### Essence  
+Study a **curated constellation of "adjacent but complementary" codebases**—micro-kernels, userspace data-planes, low-latency schedulers and Rust-first OSes—because each contains battle-tested solutions to the exact L1-L8 questions RustHallows must answer (isolation, zero-copy I/O, µs-level scheduling, formal proofs).  Mining them provides high-leverage shortcuts without wading through the full 290 M-token Linux swamp.
+
+---
+
+### Short-List of Repositories to Clone (ranked by relevance)
+
+| Repo & Link | Category | ≈ LoC | Why It Matters to RustHallows | Primary L-Levels |
+|:---|:---|---:|:---|:---|
+| sel4/sel4 | Formally-verified micro-kernel (C) | 35 K | Reference for capability system & proof workflow | L5, L6, L8 |
+| sel4/camkes | Component framework on seL4 | 50 K | Shows statically-generated IPC glue; template for Hallows services | L2, L4 |
+| google/fuchsia "Zircon" | Production micro-kernel (C++) | 500 K | Modern driver model, VDSO syscalls; lessons on scaling µ-kernels | L5, L6, L8 |
+| barrelfish/barrelfish | Research multikernel OS | 300 K | Message-passing on NUMA hardware; Time-Turner DAG ideas | L5, L6 |
+| dpdk/dpdk | Userspace NIC dataplane | 800 K | Poll-mode drivers, mempools, per-CPU rings → Floo Network blueprint | L1-L4 |
+| spdk/spdk | Userspace NVMe/RDMA storage | 450 K | Zero-copy NVMe queues; zoning logic for Gringotts | L1-L4 |
+| NetSys/bess | Programmable packet pipeline (C++) | 120 K | Modular run-to-completion scheduler; inspiration for Portkey DAG | L2, L4 |
+| hyo-eun/mtcp | Kernel-bypass TCP stack | 60 K | Shows userspace TCP segmentation offload; contrasts with XDP | L1-L3 |
+| srinivasyadav18/shinjuku | 5 µs scheduler (*) | >10 K | Direct parent of Time-Turner; preempt vs. work-conserving study | L1, L5 |
+| NoSizeYet/shenango | I/O kernel + user threads | 50 K | Core-pinning & interruption model; tail-latency data | L5, L6 |
+| Atheros9/caladan | RDMA-first scheduler | 65 K | Hierarchical fair queueing; fits HPC variant of Time-Turner | L5 |
+| seastar/seastar | C++ user-space reactor | 200 K | Thread-per-core, per-CPU memory; compare with Rust async | L2-L4 |
+| firecracker-microvm/firecracker | Minimal KVM hypervisor (Rust) | 180 K | Rust device-model patterns, jailer isolation, audit history | L2, L7 |
+| redox-os/redox | Full Rust POSIX-ish OS | 350 K | Driver patterns & syscall ABI in Rust; cautionary on scope creep | L3-L6 |
+| hubris-lang/hubris-os | Embedded Rust micro-kernel | 25 K | Capability encoding in Rust enums; fits Ministry-of-Magic style | L2, L5 |
+| drone-os/drone-os | Bare-metal RTOS in Rust | 15 K | Real-time primitives; good L1 micro-optimisation ideas | L1, L5 |
+| aya-rust/aya | eBPF in Rust | 70 K | Compile-time checked BPF loaders; optional XDP fallback layer | L3-L4 |
+| open-cheri/cheribsd | CHERI memory-safe FreeBSD | >1 M | Hardware capabilities; informs Horcrux safety design | L6, L7 |
+| ferrocene/ferrocene | Qualified Rust toolchain | n/a | Certification artefacts & process scripts | L7, L8 |
+
+\* Original Shinjuku code from CMU; many mirrors exist.
+
+---
+
+### How Each Repository Maps to the L1-L8 Extraction Hierarchy
+
+1. **Horizon 1 (Tactical)**  
+   • DPDK/SPDK → lock-free rings, slab-like mempools, cache-aligned packet buffers  
+   • Seastar → per-CPU allocators, TLS-based schedulers  
+
+2. **Horizon 2 (Strategic Architecture)**  
+   • Zircon, Barrelfish → object-capability models, VDSO tricks, NUMA message routing  
+   • Shinjuku/Shenango → sub-µs preemption, sharded run-queues  
+
+3. **Horizon 3 (Foundational Evolution)**  
+   • seL4 proofs + Ferrocene → evidence path for ASIL-D/DO-178C  
+   • CHERI BSD → future-proof pointer-safety hardware ; informs Rust "capability types" RFC  
+
+---
+
+### Practical Cloning Tips (token-budget aware)
+
+```bash
+mkdir ~/src/adjacent
+gh repo clone sel4/sel4 ~/src/adjacent/sel4
+gh repo clone dpdk/dpdk --depth 1 ~/src/adjacent/dpdk        # 9 M tokens
+gh repo clone spdk/spdk --depth 1 ~/src/adjacent/spdk        # 5 M tokens
+# Keep only include/, kernel/, lib/, drivers/ directories to stay under ~40 M total
+```
+
+1. **Prune** large repos (`git sparse-checkout set lib/ drivers/`) to keep < 10 M tokens each.  
+2. **Process** in batches of ≤ 30 kB/source per prompt to respect the 32 k context window.  
+3. **Prioritise** DPDK → Shinjuku → seL4; that trio covers the "performance tripod" fastest.  
+
+---
+
+### Bottom Line  
+By supplementing pruned-Linux with these **17 focused repositories**, you tap directly into the best existing work on micro-kernels, userspace I/O and µs-level scheduling—each a puzzle-piece for RustHallows—without breaching your local-only, 24 GB Mac Mini limit.
